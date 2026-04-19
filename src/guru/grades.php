@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/guru/grades.php
 session_start();
 require_once '../../config/database.php';
@@ -172,7 +172,7 @@ function getSubjectStyle($subjectName)
 
         <?php if (empty($all_my_classes)): ?>
             <div style="text-align: center; padding: 5rem 2rem; background: white; border-radius: 24px; border: 2px dashed #cbd5e1; max-width: 600px; margin: 40px auto;">
-                <div style="font-size: 4rem; opacity: 0.8; margin-bottom: 1.5rem;">â„¹ï¸</div>
+                <div style="font-size: 4rem; opacity: 0.8; margin-bottom: 1.5rem; color: #94a3b8;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
                 <h3 style="color: #1e293b; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">Belum ada kelas aktif</h3>
                 <p style="color: #64748b;">Anda harus membuat kelas terlebih dahulu di menu "Kelas & Materi" sebelum menginput nilai.</p>
                 <a href="kelas.php" class="btn" style="display: inline-block; margin-top: 1rem; text-decoration: none;">Ke Menu Kelas</a>
@@ -221,7 +221,7 @@ function getSubjectStyle($subjectName)
 
             <!-- No Results Message -->
             <div id="noResultsMsg" style="display: none; text-align: center; padding: 4rem 1rem; color: #64748b;">
-                <p style="font-size: 3rem; margin-bottom: 10px;">ðŸ“‰</p>
+                <p style="font-size: 3rem; margin-bottom: 10px;"><svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></p>
                 <p style="font-size: 1.1rem; font-weight: 500;">Tidak ditemukan kelas yang cocok.</p> 
             </div>
         <?php endif; ?>
@@ -276,4 +276,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
+
 

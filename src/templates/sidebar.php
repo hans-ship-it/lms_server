@@ -74,6 +74,9 @@ if ($role == 'bk')
             <a href="<?php echo $base_url; ?>/src/admin/promote_class.php" class="nav-link <?php echo $current_page == 'promote_class.php' ? 'active' : ''; ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.934a.5.5 0 0 0-.777-.416L16 11"/><path d="M12 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h6"/><path d="M12 18V6a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2z"/></svg> Promosi Kelas
             </a>
+            <a href="<?php echo $base_url; ?>/src/admin/manage_snbp.php" class="nav-link <?php echo $current_page == 'manage_snbp.php' ? 'active' : ''; ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;"><path d="M16 8v8M12 8v8M8 8v8M4 4h16v16H4z"/></svg> Kelulusan SNBP
+            </a>
         <?php
 endif; ?>
 
