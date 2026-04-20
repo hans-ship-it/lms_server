@@ -152,7 +152,8 @@ function getTypeIcon(string $type): array {
             border-radius: 50%; pointer-events: none;
         }
         .hero-inner { position: relative; z-index:2; }
-        .back-link { color: rgba(255,255,255,.7); text-decoration: none; font-size:.85rem; display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.1); padding: 5px 12px; border-radius:20px; margin-bottom:12px; backdrop-filter:blur(4px); }
+        .back-link { color: rgba(255,255,255,.7); text-decoration: none; font-size:.85rem; display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,.1); padding: 5px 12px; border-radius:20px; margin-bottom:12px; backdrop-filter:blur(4px); transition: background .15s; }
+        .back-link:hover { background:rgba(255,255,255,.2); }
         .hero-inner h1 { font-size: 1.65rem; font-weight:800; color:#fff; margin-bottom:4px; }
         .hero-inner p  { color:rgba(255,255,255,.6); font-size:.88rem; }
 
@@ -162,8 +163,8 @@ function getTypeIcon(string $type): array {
         .tab-bar {
             display: flex;
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 2px 16px rgba(0,0,0,.06);
+            border-radius: 12px;
+            border: 1px solid #e8edf5;
             margin-bottom: 1.5rem;
             overflow: hidden;
         }
@@ -174,57 +175,46 @@ function getTypeIcon(string $type): array {
             justify-content: center;
             gap: 8px;
             padding: 14px;
-            font-size: .9rem;
+            font-size: .85rem;
             font-weight: 700;
             color: #64748b;
             text-decoration: none;
             transition: background .2s, color .2s;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
         }
         .tab-btn.active {
             color: #4f46e5;
             border-bottom-color: #4f46e5;
-            background: #f5f3ff;
+            background: #f8fafc;
         }
-        .tab-btn:hover:not(.active) { background: #f8fafc; color: #334155; }
+        .tab-btn:hover:not(.active) { background: #f8fafc; color: #334155; border-bottom-color: #cbd5e1; }
 
-        /* Subject grid */
-        .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-        .subject-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            text-decoration: none;
-            color: inherit;
-            box-shadow: 0 2px 12px rgba(0,0,0,.05);
-            transition: transform .2s, box-shadow .2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        .subject-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,.09); }
-        .subject-icon { width: 52px; height: 52px; background: #eef2ff; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #4f46e5; }
-        .subject-card h3 { font-size: .92rem; font-weight: 700; color: #1e293b; margin: 0; }
-        .subject-badge { background: #f0fdf4; color: #15803d; font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+        /* Subject list format (instead of cards) */
+        .subject-list { display: flex; flex-direction: column; gap: 0; background: #fff; border-radius: 12px; border: 1px solid #e8edf5; overflow: hidden; }
+        .subject-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; text-decoration: none; color: inherit; border-bottom: 1px solid #f1f5f9; transition: background 0.15s; }
+        .subject-item:last-child { border-bottom: none; }
+        .subject-item:hover { background: #fafbff; }
+        .subject-ico { width: 40px; height: 40px; border-radius: 10px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .subject-info { flex: 1; min-width: 0; }
+        .subject-name { font-size: 0.92rem; font-weight: 700; color: #1e293b; }
+        .subject-count { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
+        .subject-arrow { color: #cbd5e1; }
 
-        /* Material list */
-        .material-list { display: flex; flex-direction: column; gap: 12px; }
+        /* Material list format */
+        .material-list { display: flex; flex-direction: column; gap: 0; background: #fff; border-radius: 12px; border: 1px solid #e8edf5; overflow: hidden; }
         .material-row {
-            background: #fff;
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             gap: 14px;
-            box-shadow: 0 1px 6px rgba(0,0,0,.04);
             text-decoration: none;
             color: inherit;
-            transition: box-shadow .2s, transform .15s;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background .15s;
         }
-        .material-row:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateX(4px); }
-        .mat-ico { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .material-row:last-child { border-bottom: none; }
+        .material-row:hover { background: #fafbff; }
+        .mat-ico { width:38px; height:38px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .mat-ico.pdf   { background:#fee2e2; color:#dc2626; }
         .mat-ico.video { background:#dbeafe; color:#2563eb; }
         .mat-ico.ppt   { background:#fef3c7; color:#d97706; }
@@ -232,30 +222,27 @@ function getTypeIcon(string $type): array {
         .mat-ico.link  { background:#d1fae5; color:#059669; }
         .mat-ico.doc   { background:#ede9fe; color:#7c3aed; }
         .mat-info { flex:1; min-width:0; }
-        .mat-title { font-size:.9rem; font-weight:700; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .mat-title { font-size:.88rem; font-weight:700; color:#1e293b; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .mat-meta  { font-size:.73rem; color:#94a3b8; margin-top:3px; }
-        .mat-type-badge { font-size:.65rem; font-weight:700; text-transform:uppercase; padding:2px 8px; border-radius:4px; background:#f1f5f9; color:#64748b; margin-left:6px; }
+        .mat-type-badge { font-size:.62rem; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:4px; background:#f1f5f9; color:#64748b; margin-left:6px; letter-spacing:.04em; }
 
-        /* Task cards */
+        /* Task lists format */
         .task-section { margin-bottom: 2rem; }
-        .task-section-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; margin-bottom:10px; }
-        .task-card {
-            background: #fff;
-            border-radius: 14px;
-            padding: 1rem 1.25rem;
+        .task-section-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; margin-bottom:12px; display:flex; align-items:center; }
+        .task-list { display: flex; flex-direction: column; gap: 0; background: #fff; border-radius: 12px; border: 1px solid #e8edf5; overflow: hidden; }
+        .task-row {
+            padding: 14px 20px;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 14px;
-            box-shadow: 0 1px 6px rgba(0,0,0,.04);
-            margin-bottom: 10px;
-            transition: box-shadow .2s;
+            border-bottom: 1px solid #f1f5f9;
         }
-        .task-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); }
-        .task-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+        .task-row:last-child { border-bottom: none; }
+        .task-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
         .task-info { flex:1; min-width:0; }
-        .task-title { font-size:.9rem; font-weight:700; color:#1e293b; margin-bottom:3px; }
-        .task-meta  { font-size:.76rem; color:#94a3b8; }
-        .task-badge { font-size:.72rem; font-weight:700; padding:4px 12px; border-radius:8px; white-space:nowrap; flex-shrink:0; }
+        .task-title { font-size:.88rem; font-weight:700; color:#1e293b; margin-bottom:3px; }
+        .task-meta  { font-size:.73rem; color:#94a3b8; }
+        .task-badge { font-size:.68rem; font-weight:700; padding:3px 9px; border-radius:5px; white-space:nowrap; flex-shrink:0; text-transform:uppercase; letter-spacing:.03em; }
         .badge-pending { background:#fef3c7; color:#92400e; }
         .badge-overdue { background:#fee2e2; color:#991b1b; }
         .badge-done    { background:#d1fae5; color:#065f46; }
@@ -270,23 +257,32 @@ function getTypeIcon(string $type): array {
             gap: 5px;
             background: #4f46e5;
             color: #fff;
-            padding: 5px 14px;
-            border-radius: 8px;
+            padding: 6px 14px;
+            border-radius: 7px;
             font-size: .78rem;
             font-weight: 700;
             text-decoration: none;
             white-space: nowrap;
             flex-shrink: 0;
-            transition: background .2s;
+            transition: background .15s;
         }
         .kerjakan-btn:hover { background: #4338ca; }
         .kerjakan-btn.disabled { background: #e2e8f0; color: #94a3b8; pointer-events: none; }
 
-        .empty-state { text-align:center; padding:3rem 1rem; color:#94a3b8; }
+        .empty-state { text-align:center; padding:3rem 1rem; color:#94a3b8; background:#fff; border-radius:12px; border:1px solid #e8edf5; font-size:.88rem; }
+        .empty-state svg { opacity:0.35; margin-bottom:10px; }
 
         .breadcrumb { display:flex; align-items:center; gap:6px; margin-bottom:16px; font-size:.82rem; color:#94a3b8; }
         .breadcrumb a { color:#4f46e5; text-decoration:none; font-weight:600; }
         .breadcrumb a:hover { text-decoration:underline; }
+
+        @media (max-width: 768px) {
+            .page-hero { padding: 1.5rem 1.5rem 4rem; }
+            .page-content { padding: 0 1rem 2rem; }
+            .task-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .kerjakan-btn { width: 100%; justify-content: center; }
+            .task-badge { align-self: flex-start; }
+        }
     </style>
 </head>
 <body>
@@ -299,7 +295,7 @@ function getTypeIcon(string $type): array {
             <div class="hero-inner">
                 <a href="kelas_siswa.php" class="back-link">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-                    Kelas Saya
+                    Kembali
                 </a>
                 <h1><?php echo htmlspecialchars($class_name); ?></h1>
                 <p>Materi pelajaran dan tugas untuk kelas Anda</p>
@@ -359,23 +355,28 @@ function getTypeIcon(string $type): array {
                 <?php endif; ?>
 
             <?php else: ?>
-                <!-- Subject Grid -->
+                <!-- Subject List -->
                 <?php if (empty($subjects)): ?>
                 <div class="empty-state">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                     <p>Belum ada materi untuk kelas ini.</p>
                 </div>
                 <?php else: ?>
-                <div class="subject-grid">
+                <div class="subject-list">
                     <?php foreach ($subjects as $sub):
                         $href = ($sub['id'] === null) ? "?class_id={$class_id}&tab=materi&general=1" : "?class_id={$class_id}&tab=materi&subject_id={$sub['id']}";
                     ?>
-                    <a href="<?php echo $href; ?>" class="subject-card">
-                        <div class="subject-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                    <a href="<?php echo $href; ?>" class="subject-item">
+                        <div class="subject-ico">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                         </div>
-                        <h3><?php echo htmlspecialchars($sub['name'] ?? 'Umum'); ?></h3>
-                        <span class="subject-badge"><?php echo $sub['material_count']; ?> materi</span>
+                        <div class="subject-info">
+                            <div class="subject-name"><?php echo htmlspecialchars($sub['name'] ?? 'Umum'); ?></div>
+                            <div class="subject-count"><?php echo $sub['material_count']; ?> materi</div>
+                        </div>
+                        <div class="subject-arrow">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                        </div>
                     </a>
                     <?php endforeach; ?>
                 </div>
@@ -389,46 +390,48 @@ function getTypeIcon(string $type): array {
                 <div class="task-section">
                     <div class="task-section-title">
                         Tugas Aktif — Belum Dikerjakan
-                        <span style="background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:10px; font-size:.68rem; margin-left:6px;"><?php echo count($pending_tasks); ?></span>
+                        <span style="background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:10px; font-size:.62rem; margin-left:6px;"><?php echo count($pending_tasks); ?></span>
                     </div>
 
                     <?php if (empty($pending_tasks)): ?>
-                    <div class="empty-state" style="padding:2rem; background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(0,0,0,.04);">
+                    <div class="empty-state">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        <p style="color:#059669; font-weight:600;">Semua tugas sudah dikerjakan!</p>
+                        <p style="color:#059669; font-weight:600; margin-top:4px;">Semua tugas sudah dikerjakan!</p>
                     </div>
                     <?php else: ?>
-                    <?php foreach ($pending_tasks as $t):
-                        $now          = time();
-                        $deadline_ts  = strtotime($t['deadline']);
-                        $is_overdue   = $deadline_ts < $now;
-                        $type_label   = ($t['assignment_type'] ?? 'tugas') === 'absensi' ? 'Absensi' : 'Tugas';
-                        $type_bg      = ($t['assignment_type'] ?? 'tugas') === 'absensi' ? '#dcfce7' : '#ede9fe';
-                        $type_color   = ($t['assignment_type'] ?? 'tugas') === 'absensi' ? '#166534' : '#5b21b6';
-                    ?>
-                    <div class="task-card">
-                        <div class="task-dot" style="background:<?php echo $is_overdue ? '#ef4444' : '#f59e0b'; ?>;"></div>
-                        <div class="task-info">
-                            <div class="task-title">
-                                <span style="background:<?php echo $type_bg; ?>; color:<?php echo $type_color; ?>; font-size:.65rem; font-weight:700; padding:1px 6px; border-radius:3px; margin-right:5px;"><?php echo $type_label; ?></span>
-                                <?php echo htmlspecialchars($t['title']); ?>
+                    <div class="task-list">
+                        <?php foreach ($pending_tasks as $t):
+                            $now          = time();
+                            $deadline_ts  = strtotime($t['deadline']);
+                            $is_overdue   = $deadline_ts < $now;
+                            $type_label   = ($t['assignment_type'] ?? 'tugas') === 'absensi' ? 'Absensi' : 'Tugas';
+                            $type_bg      = ($t['assignment_type'] ?? 'tugas') === 'absensi' ? '#dcfce7' : '#e0e7ff';
+                            $type_color   = ($t['assignment_type'] ?? 'tugas') === 'absensi' ? '#166534' : '#3730a3';
+                        ?>
+                        <div class="task-row">
+                            <div class="task-dot" style="background:<?php echo $is_overdue ? '#ef4444' : '#f59e0b'; ?>;"></div>
+                            <div class="task-info">
+                                <div class="task-title">
+                                    <span style="background:<?php echo $type_bg; ?>; color:<?php echo $type_color; ?>; font-size:.62rem; font-weight:800; padding:1px 6px; border-radius:4px; margin-right:5px; text-transform:uppercase;"><?php echo $type_label; ?></span>
+                                    <?php echo htmlspecialchars($t['title']); ?>
+                                </div>
+                                <div class="task-meta <?php echo $is_overdue ? 'deadline-passed' : ''; ?>">
+                                    Deadline: <?php echo date('d M Y, H:i', $deadline_ts); ?>
+                                    <?php if ($is_overdue): ?> · <strong>SUDAH LEWAT</strong><?php endif; ?>
+                                    · <?php echo htmlspecialchars($t['teacher_name']); ?>
+                                </div>
                             </div>
-                            <div class="task-meta <?php echo $is_overdue ? 'deadline-passed' : ''; ?>">
-                                Deadline: <?php echo date('d M Y, H:i', $deadline_ts); ?>
-                                <?php if ($is_overdue): ?> · <strong>SUDAH LEWAT</strong><?php endif; ?>
-                                · <?php echo htmlspecialchars($t['teacher_name']); ?>
-                            </div>
+                            <?php if (!$is_overdue): ?>
+                            <a href="assignments.php?assignment_id=<?php echo $t['id']; ?>" class="kerjakan-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                Kerjakan
+                            </a>
+                            <?php else: ?>
+                            <span class="task-badge badge-overdue">Terlambat</span>
+                            <?php endif; ?>
                         </div>
-                        <?php if (!$is_overdue): ?>
-                        <a href="assignments.php?assignment_id=<?php echo $t['id']; ?>" class="kerjakan-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                            Kerjakan
-                        </a>
-                        <?php else: ?>
-                        <span class="task-badge badge-overdue">Terlambat</span>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 
@@ -436,38 +439,41 @@ function getTypeIcon(string $type): array {
                 <div class="task-section">
                     <div class="task-section-title">
                         Riwayat Pengerjaan
-                        <span style="background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:10px; font-size:.68rem; margin-left:6px;"><?php echo count($completed_tasks); ?></span>
+                        <span style="background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:10px; font-size:.62rem; margin-left:6px;"><?php echo count($completed_tasks); ?></span>
                     </div>
 
                     <?php if (empty($completed_tasks)): ?>
-                    <div class="empty-state" style="padding:2rem; background:#fff; border-radius:14px; box-shadow:0 1px 6px rgba(0,0,0,.04);">
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         <p>Belum ada tugas yang dikumpulkan.</p>
                     </div>
                     <?php else: ?>
-                    <?php foreach ($completed_tasks as $d):
-                        $is_late = ($d['sub_status'] === 'terlambat') || (!empty($d['submitted_at']) && strtotime($d['submitted_at']) > strtotime($d['deadline']));
-                    ?>
-                    <div class="task-card">
-                        <div class="task-dot" style="background:#10b981;"></div>
-                        <div class="task-info">
-                            <div class="task-title"><?php echo htmlspecialchars($d['title']); ?></div>
-                            <div class="task-meta">
-                                Dikumpulkan: <?php echo date('d M Y, H:i', strtotime($d['submitted_at'])); ?>
-                                <?php if ($is_late): ?> · <span style="color:#be185d; font-weight:600;">Terlambat</span><?php endif; ?>
-                                · <?php echo htmlspecialchars($d['teacher_name']); ?>
+                    <div class="task-list">
+                        <?php foreach ($completed_tasks as $d):
+                            $is_late = ($d['sub_status'] === 'terlambat') || (!empty($d['submitted_at']) && strtotime($d['submitted_at']) > strtotime($d['deadline']));
+                        ?>
+                        <div class="task-row">
+                            <div class="task-dot" style="background:#10b981;"></div>
+                            <div class="task-info">
+                                <div class="task-title"><?php echo htmlspecialchars($d['title']); ?></div>
+                                <div class="task-meta">
+                                    Dikumpulkan: <?php echo date('d M Y, H:i', strtotime($d['submitted_at'])); ?>
+                                    <?php if ($is_late): ?> · <span style="color:#be185d; font-weight:600;">Terlambat</span><?php endif; ?>
+                                    · <?php echo htmlspecialchars($d['teacher_name']); ?>
+                                </div>
                             </div>
+                            <?php if (($d['assignment_type'] ?? 'tugas') === 'absensi'): ?>
+                                <span class="task-badge badge-done" style="border: 1px solid #bbf7d0;"><?php echo htmlspecialchars($d['sub_status'] ?? 'Hadir'); ?></span>
+                            <?php elseif ($d['grade'] !== null): ?>
+                                <span class="task-badge badge-graded">Nilai: <?php echo $d['grade']; ?></span>
+                            <?php elseif ($is_late): ?>
+                                <span class="task-badge badge-late">Terlambat</span>
+                            <?php else: ?>
+                                <span class="task-badge badge-done">Selesai</span>
+                            <?php endif; ?>
                         </div>
-                        <?php if (($d['assignment_type'] ?? 'tugas') === 'absensi'): ?>
-                            <span class="task-badge badge-done" style="text-transform: capitalize; border: 1px solid #bbf7d0;"><?php echo htmlspecialchars($d['sub_status'] ?? 'Hadir'); ?></span>
-                        <?php elseif ($d['grade'] !== null): ?>
-                            <span class="task-badge badge-graded">Nilai: <?php echo $d['grade']; ?></span>
-                        <?php elseif ($is_late): ?>
-                            <span class="task-badge badge-late">Terlambat</span>
-                        <?php else: ?>
-                            <span class="task-badge badge-done">Selesai</span>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                    <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
 

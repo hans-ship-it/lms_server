@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/pimpinan/dashboard.php
 session_start();
 require_once '../../config/database.php';
@@ -122,61 +122,61 @@ else
             padding: 0 3rem 3rem;
             z-index: 10;
         }
-        .db-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        .db-stat {
+        .stat-bar {
+            display: flex;
             background: #fff;
-            border-radius: 16px;
-            padding: 22px 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.04);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            border-radius: 14px;
+            border: 1px solid #e8edf5;
+            margin-bottom: 28px;
             overflow: hidden;
-            animation: fade-up 0.4s ease-out both;
+            animation: fade-up 0.4s ease-out 0.05s both;
         }
-        .db-stat:nth-child(1) { animation-delay: 0.05s; }
-        .db-stat:nth-child(2) { animation-delay: 0.1s; }
-        .db-stat:nth-child(3) { animation-delay: 0.15s; }
-        .db-stat:nth-child(4) { animation-delay: 0.2s; }
+        .stat-item {
+            flex: 1;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+        }
+        .stat-item + .stat-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 20%; height: 60%;
+            width: 1px;
+            background: #e8edf5;
+        }
+        .stat-ico {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            background: #f8fafc;
+            color: #64748b;
+        }
+        .stat-ico.c1 { background: #e0f2fe; color: #0284c7; }
+        .stat-ico.c2 { background: #e0e7ff; color: #4f46e5; }
+        .stat-ico.c3 { background: #d1fae5; color: #059669; }
+        .stat-ico.c4 { background: #fef3c7; color: #d97706; }
+        .stat-num {
+            font-size: 1.7rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .stat-item.c1 .stat-num { color: #0284c7; }
+        .stat-item.c2 .stat-num { color: #4f46e5; }
+        .stat-item.c3 .stat-num { color: #059669; }
+        .stat-item.c4 .stat-num { color: #d97706; }
+        .stat-lbl {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-top: 2px;
+        }
         @keyframes fade-up {
             from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-        .db-stat::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            width: 100%; height: 3px;
-        }
-        .db-stat.c1::after { background: linear-gradient(90deg, #0ea5e9, #7dd3fc); }
-        .db-stat.c2::after { background: linear-gradient(90deg, #6366f1, #a5b4fc); }
-        .db-stat.c3::after { background: linear-gradient(90deg, #10b981, #6ee7b7); }
-        .db-stat.c4::after { background: linear-gradient(90deg, #f59e0b, #fde68a); }
-        .db-stat:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-        }
-        .db-stat .num {
-            font-size: 2.2rem;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 6px;
-            letter-spacing: -0.03em;
-        }
-        .db-stat.c1 .num { color: #0284c7; }
-        .db-stat.c2 .num { color: #4f46e5; }
-        .db-stat.c3 .num { color: #059669; }
-        .db-stat.c4 .num { color: #d97706; }
-        .db-stat .lbl {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #94a3b8;
         }
 
         .db-grid {
@@ -185,23 +185,26 @@ else
             gap: 20px;
             animation: fade-up 0.4s ease-out 0.3s both;
         }
-        .db-panel {
+        .db-section {
             background: #fff;
-            border-radius: 18px;
-            padding: 26px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.04);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            border-radius: 14px;
+            border: 1px solid #e8edf5;
+            overflow: hidden;
+            animation: fade-up 0.4s ease-out 0.3s both;
         }
-        .db-panel h3 {
-            font-size: 0.82rem;
+        .db-section-head {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .db-section-title {
+            font-size: 0.78rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            color: #94a3b8;
-            margin-bottom: 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #f1f5f9;
+            color: #64748b;
         }
 
         /* Table */
@@ -213,48 +216,44 @@ else
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: #94a3b8;
-            padding: 0 0 12px;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e8edf5;
         }
         .user-table td {
-            padding: 12px 0;
-            border-top: 1px solid #f1f5f9;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
             font-size: 0.88rem;
         }
+        .user-table tr:last-child td { border-bottom: none; }
         .user-table .name { font-weight: 600; color: #1e293b; }
         .date-muted { color: #94a3b8; font-size: 0.82rem; }
 
         /* Quick Actions */
-        .qa-list { display: flex; flex-direction: column; gap: 8px; }
+        .qa-list { display: flex; flex-direction: column; gap: 0; }
         .qa-item {
             display: flex;
             align-items: center;
             gap: 16px;
-            padding: 14px 16px;
-            border-radius: 12px;
-            background: #f8fafc;
-            border: 1px solid #eef2f7;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f8fafc;
             text-decoration: none;
             color: inherit;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.15s;
+            background: #fff;
         }
-        .qa-item:hover {
-            background: #e0f2fe;
-            border-color: #bae6fd;
-            transform: translateX(4px);
-            box-shadow: 0 2px 12px rgba(14,165,233,0.06);
-        }
+        .qa-item:hover { background: #fafbff; }
         .qa-ico {
-            width: 42px; height: 42px;
-            border-radius: 12px;
+            width: 36px; height: 36px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.15rem;
             flex-shrink: 0;
+            background: #e0f2fe;
+            color: #0284c7;
         }
-        .qa-item:nth-child(1) .qa-ico { background: #dbeafe; }
-        .qa-item:nth-child(2) .qa-ico { background: #fef3c7; }
-        .qa-item:nth-child(3) .qa-ico { background: #ede9fe; }
         .qa-title { font-size: 0.88rem; font-weight: 600; color: #1e293b; }
         .qa-desc { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
         .qa-arrow {
@@ -266,7 +265,9 @@ else
         .qa-item:hover .qa-arrow { color: #0ea5e9; transform: translateX(3px); }
 
         @media (max-width: 900px) {
-            .db-stats { grid-template-columns: repeat(2, 1fr); }
+            .stat-bar { flex-wrap: wrap; }
+            .stat-item + .stat-item::before { display: none; }
+            .stat-item { border-bottom: 1px solid #f1f5f9; min-width: 45%; }
             .db-grid { grid-template-columns: 1fr; }
             
             .db-hero { 
@@ -300,30 +301,52 @@ else
         </div>
 
         <div class="db-content">
-            <div class="db-stats">
-                <div class="db-stat c1">
-                    <div class="num"><?php echo $stats['guru']; ?></div>
-                    <div class="lbl">Total Guru</div>
+            <div class="stat-bar">
+                <div class="stat-item c1">
+                    <div class="stat-ico c1">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num"><?php echo $stats['guru']; ?></div>
+                        <div class="stat-lbl">Total Guru</div>
+                    </div>
                 </div>
-                <div class="db-stat c2">
-                    <div class="num"><?php echo $stats['siswa']; ?></div>
-                    <div class="lbl">Total Siswa</div>
+                <div class="stat-item c2">
+                    <div class="stat-ico c2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num"><?php echo $stats['siswa']; ?></div>
+                        <div class="stat-lbl">Total Siswa</div>
+                    </div>
                 </div>
-                <div class="db-stat c3">
-                    <div class="num"><?php echo $stats['classes']; ?></div>
-                    <div class="lbl">Total Kelas</div>
+                <div class="stat-item c3">
+                    <div class="stat-ico c3">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num"><?php echo $stats['classes']; ?></div>
+                        <div class="stat-lbl">Total Kelas</div>
+                    </div>
                 </div>
-                <div class="db-stat c4">
-                    <div class="num"><?php echo $stats['news']; ?></div>
-                    <div class="lbl">Berita Sekolah</div>
+                <div class="stat-item c4">
+                    <div class="stat-ico c4">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <div class="stat-num"><?php echo $stats['news']; ?></div>
+                        <div class="stat-lbl">Berita Sekolah</div>
+                    </div>
                 </div>
             </div>
 
             <div class="db-grid">
 
                 <!-- Quick Actions -->
-                <div class="db-panel">
-                    <h3>Akses Cepat Monitoring</h3>
+                <div class="db-section">
+                    <div class="db-section-head">
+                        <span class="db-section-title">Akses Cepat Monitoring</span>
+                    </div>
                     <div class="qa-list">
                         <a href="guru_list.php" class="qa-item">
                             <div class="qa-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/></svg></div>
@@ -353,8 +376,10 @@ else
                 </div>
 
                 <!-- Recent News -->
-                <div class="db-panel">
-                    <h3>Berita & Informasi Terbaru</h3>
+                <div class="db-section">
+                    <div class="db-section-head">
+                        <span class="db-section-title">Berita & Informasi Terbaru</span>
+                    </div>
                     <table class="user-table">
                         <thead>
                             <tr>
@@ -380,9 +405,11 @@ else
                 </div>
 
                 <!-- Tracer Study Chart -->
-                <div class="db-panel" style="grid-column: 1 / -1;">
-                    <h3>Statistik Penelusuran Alumni (Tracer Study)</h3>
-                    <div style="height: 280px; display: flex; justify-content: center;">
+                <div class="db-section" style="grid-column: 1 / -1;">
+                    <div class="db-section-head">
+                        <span class="db-section-title">Statistik Penelusuran Alumni (Tracer Study)</span>
+                    </div>
+                    <div style="height: 280px; display: flex; justify-content: center; padding: 20px;">
                         <canvas id="tracerChart"></canvas>
                     </div>
                 </div>

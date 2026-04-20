@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/osis/manage_news.php
 session_start();
 require_once '../../config/database.php';
@@ -12,13 +12,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'osis') {
 if (isset($_GET['delete'])) {
     $id = $_GET['delete'];
     try {
-        // Optional: Check if OSIS owns it? Requirement says "can be deleted by OSIS AND Admin", implying full power.
-        // We will allow deleting ANY news for now to match the user request.
         $stmt = $pdo->prepare("DELETE FROM news WHERE id = ?");
         $stmt->execute([$id]);
         $success = "Berita berhasil dihapus.";
-    }
-    catch (PDOException $e) {
+    } catch (PDOException $e) {
         $error = "Gagal menghapus berita.";
     }
 }
@@ -32,8 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_news'])) {
 
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $target_dir = "../../public/uploads/news/";
-        if (!file_exists($target_dir))
-            mkdir($target_dir, 0777, true);
+        if (!file_exists($target_dir)) mkdir($target_dir, 0777, true);
         $filename = time() . "_" . basename($_FILES["image"]["name"]);
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_dir . $filename)) {
             $image_path = $filename;
@@ -52,9 +48,113 @@ $news_items = $pdo->query("SELECT * FROM news ORDER BY created_at DESC")->fetchA
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Berita - OSIS</title>
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #7c2d12 0%, #c2410c 50%, #ea580c 100%);
+            padding: 2.5rem 3rem 5rem;
+            position: relative; overflow: hidden;
+        }
+        .page-hero::before {
+            content: ''; position: absolute;
+            right: -60px; top: -60px;
+            width: 250px; height: 250px;
+            background: rgba(255,255,255,0.07); border-radius: 50%;
+        }
+        .page-hero h1 { color: #fff; font-size: 1.6rem; font-weight: 700; margin: 0 0 0.4rem; }
+        .page-hero p  { color: rgba(255,255,255,0.8); margin: 0; font-size: 0.95rem; }
+        .page-content {
+            position: relative; margin-top: -2.5rem;
+            padding: 0 3rem 3rem; z-index: 10;
+        }
+        .two-col { display: grid; grid-template-columns: 1fr 1.6fr; gap: 1.5rem; align-items: flex-start; }
+        .db-section {
+            background: #fff; border-radius: 14px;
+            border: 1px solid #e8edf5; overflow: hidden;
+        }
+        .section-head {
+            padding: 16px 22px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-head h3 { font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .section-body { padding: 20px 22px; }
+        .alert-success {
+            background: #dcfce7; color: #166534;
+            padding: 10px 16px; border-radius: 8px;
+            margin-bottom: 1rem; font-weight: 500;
+            border: 1px solid #bbf7d0; font-size: 0.9rem;
+        }
+        .alert-error {
+            background: #fee2e2; color: #991b1b;
+            padding: 10px 16px; border-radius: 8px;
+            margin-bottom: 1rem; font-weight: 500;
+            border: 1px solid #fecaca; font-size: 0.9rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block; font-size: 0.85rem;
+            font-weight: 600; color: #374151; margin-bottom: 5px;
+        }
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group input[type="file"] {
+            width: 100%; padding: 9px 12px;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            font-family: inherit; font-size: 0.9rem;
+            background: #fff; box-sizing: border-box;
+        }
+        .form-group textarea { resize: vertical; min-height: 120px; }
+        .btn-publish {
+            width: 100%; padding: 10px;
+            background: linear-gradient(135deg, #c2410c, #ea580c);
+            color: #fff; border: none; border-radius: 9px;
+            font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; font-family: inherit;
+            margin-top: 0.5rem;
+        }
+        .btn-publish:hover { background: linear-gradient(135deg, #b03a09, #d44c08); }
+        /* News list rows */
+        .news-row {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 22px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .news-row:last-child { border-bottom: none; }
+        .news-thumb {
+            width: 56px; height: 56px;
+            border-radius: 10px; object-fit: cover;
+            flex-shrink: 0; background: #f1f5f9;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .news-thumb img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; }
+        .news-info { flex: 1; min-width: 0; }
+        .news-title {
+            font-weight: 700; font-size: 0.95rem;
+            color: #0f172a; margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .news-date { font-size: 0.8rem; color: #94a3b8; }
+        .btn-hapus {
+            padding: 6px 14px; background: #fee2e2;
+            color: #991b1b; border: none; border-radius: 7px;
+            font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            text-decoration: none; flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .btn-hapus:hover { background: #fecaca; }
+        .empty-state { text-align: center; padding: 3rem 2rem; color: #94a3b8; }
+        @media (max-width: 768px) {
+            .two-col { grid-template-columns: 1fr; }
+            .page-content { padding: 0 1rem 2rem; }
+            .page-hero { padding: 2rem 1.5rem 4.5rem; }
+        }
+    </style>
 </head>
 <body>
 
@@ -62,77 +162,78 @@ $news_items = $pdo->query("SELECT * FROM news ORDER BY created_at DESC")->fetchA
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <!-- Unified Hero Header -->
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <h1 style="color: white; margin-bottom: 0.5rem;">Kelola Berita Sekolah</h1>
-                <p style="color: rgba(255,255,255,0.9);">OSIS SMAN 4 - Suara Siswa.</p>
-            </div>
+        <div class="page-hero">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:8px;"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                Kelola Berita Sekolah
+            </h1>
+            <p>OSIS – Suara Siswa SMAN 4</p>
         </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 2rem; margin-top: -30px; position: relative; z-index: 10;">
-            <!-- Form Card -->
-            <div class="card">
-                <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Tulis Berita Baru</h3>
-                <?php if (isset($success))
-    echo "<div class='badge badge-success' style='display:block; padding:10px; margin-bottom:15px; text-align:center;'>$success</div>"; ?>
-                <?php if (isset($error))
-    echo "<div class='badge badge-danger' style='display:block; padding:10px; margin-bottom:15px; text-align:center;'>$error</div>"; ?>
-                
-                <form method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="create_news" value="1">
-                    <div class="form-group">
-                        <label>Judul Berita</label>
-                        <input type="text" name="title" required placeholder="Contoh: Class Meeting Semester Ganjil">
+
+        <div class="page-content">
+            <?php if (isset($success)): ?>
+                <div class="alert-success">&#10003; <?php echo htmlspecialchars($success); ?></div>
+            <?php endif; ?>
+            <?php if (isset($error)): ?>
+                <div class="alert-error"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
+
+            <div class="two-col">
+                <!-- Form Tulis Berita -->
+                <div class="db-section">
+                    <div class="section-head">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        <h3>Tulis Berita Baru</h3>
                     </div>
-                    <div class="form-group">
-                        <label>Konten</label>
-                        <textarea name="content" rows="6" required placeholder="Tulis rincian kegiatan..."></textarea>
+                    <div class="section-body">
+                        <form method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="create_news" value="1">
+                            <div class="form-group">
+                                <label>Judul Berita</label>
+                                <input type="text" name="title" required placeholder="Contoh: Class Meeting Semester Ganjil">
+                            </div>
+                            <div class="form-group">
+                                <label>Konten</label>
+                                <textarea name="content" rows="6" required placeholder="Tulis rincian kegiatan..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Gambar Kegiatan (Opsional)</label>
+                                <input type="file" name="image" accept="image/*">
+                            </div>
+                            <button type="submit" class="btn-publish">Terbitkan Berita</button>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <label>Gambar Kegiatan (Opsional)</label>
-                        <input type="file" name="image" accept="image/*">
+                </div>
+
+                <!-- Daftar Berita -->
+                <div class="db-section">
+                    <div class="section-head">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                        <h3>Daftar Berita (<?php echo count($news_items); ?>)</h3>
                     </div>
-                    <button type="submit" class="btn" style="width: 100%; background: #ea580c;">Terbitkan Berita</button>
-                </form>
-            </div>
-            
-            <!-- List Card -->
-            <div class="card">
-                <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg> Daftar Berita</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Gambar</th>
-                                <th>Judul & Tanggal</th>
-                                <th style="text-align: right;">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($news_items as $item): ?>
-                            <tr>
-                                <td width="80">
+                    <?php if (empty($news_items)): ?>
+                        <div class="empty-state">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;opacity:0.4;"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>
+                            <p style="font-weight:600; color:#64748b;">Belum ada berita yang diterbitkan.</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($news_items as $item): ?>
+                            <div class="news-row">
+                                <div class="news-thumb">
                                     <?php if ($item['image']): ?>
-                                        <img src="../../public/uploads/news/<?php echo htmlspecialchars($item['image']); ?>" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: var(--shadow-sm);">
-                                    <?php
-    else: ?>
-                                        <div style="width: 60px; height: 60px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg></div>
-                                    <?php
-    endif; ?>
-                                </td>
-                                <td>
-                                    <strong style="display: block; font-size: 1rem; color: var(--secondary); margin-bottom: 4px;"><?php echo htmlspecialchars($item['title']); ?></strong>
-                                    <span style="font-size: 0.85rem; color: var(--text-muted);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <?php echo date('d M Y, H:i', strtotime($item['created_at'])); ?></span>
-                                </td>
-                                <td style="text-align: right;">
-                                    <a href="manage_news.php?delete=<?php echo $item['id']; ?>" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="return confirm('Yakin ingin menghapus berita ini?')">Hapus</a>
-                                </td>
-                            </tr>
-                            <?php
-endforeach; ?>
-                        </tbody>
-                    </table>
+                                        <img src="/public/uploads/news/<?php echo htmlspecialchars($item['image']); ?>" alt="thumb">
+                                    <?php else: ?>
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="news-info">
+                                    <div class="news-title"><?php echo htmlspecialchars($item['title']); ?></div>
+                                    <div class="news-date"><?php echo date('d M Y, H:i', strtotime($item['created_at'])); ?></div>
+                                </div>
+                                <a href="manage_news.php?delete=<?php echo $item['id']; ?>" class="btn-hapus" onclick="return confirm('Yakin ingin menghapus berita ini?')">Hapus</a>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -141,4 +242,3 @@ endforeach; ?>
 
 </body>
 </html>
-

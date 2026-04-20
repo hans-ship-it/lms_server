@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/guru/jadwal_mengajar.php
 session_start();
 require_once '../../config/database.php';
@@ -32,26 +32,19 @@ $schedules = $stmt->fetchAll();
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; }
+        body { overflow-x: hidden; }
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 2.5rem 3rem 5rem; position: relative; overflow: hidden;
         }
-        
-        body {
-            overflow-x: hidden;
-        }
+        .page-hero::before { content:''; position:absolute; right:-60px; top:-60px; width:250px; height:250px; background:rgba(255,255,255,0.07); border-radius:50%; }
+        .page-hero h1 { color:#fff; font-size:1.6rem; font-weight:700; margin:0 0 0.4rem; }
+        .page-hero p  { color:rgba(255,255,255,0.8); margin:0; font-size:0.95rem; }
+        .page-content { position:relative; margin-top:-2.5rem; padding:0 3rem 3rem; z-index:10; }
+        .db-section { background:#fff; border:1px solid #e8edf5; border-radius:14px; overflow:hidden; }
 
-        .card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03), 0 4px 10px rgba(0,0,0,0.02);
-            animation: fade-up 0.4s ease-out both;
-        }
-
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
 
         /* â”€â”€â”€ Filter Bar â”€â”€â”€ */
         .filter-bar {
@@ -195,34 +188,30 @@ $schedules = $stmt->fetchAll();
     <?php include '../templates/sidebar.php'; ?>
 
     <main class="main-content">
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <h1 style="color: white; margin-bottom: 0.5rem; font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Jadwal Mengajar Anda</h1>
-                <p style="color: rgba(255,255,255,0.8); margin-top: 8px; font-size: 1rem;">Jadwal yang telah diatur oleh Admin untuk Anda penuhi.</p>
-            </div>
-            <!-- Decorative circle since style.css doesn't include the right-top one automatically -->
-            <div style="position: absolute; width: 600px; height: 600px; top: -250px; right: -150px; background: radial-gradient(circle, rgba(129,140,248,0.2) 0%, transparent 60%); border-radius: 50%; pointer-events: none;"></div>
+        <div class="page-hero">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:8px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Jadwal Mengajar Anda
+            </h1>
+            <p>Jadwal yang telah diatur oleh Admin untuk Anda penuhi.</p>
         </div>
 
-        <div class="content-overlap">
-            <div class="card">
+        <div class="page-content">
+            <div class="db-section">
                 <form method="GET" class="filter-bar">
-                    <input type="text" name="q" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="Cari jadwal berdasarkan kata kunci terkait..." class="filter-input">
+                    <input type="text" name="q" value="<?php echo htmlspecialchars($search_query); ?>" placeholder="Cari jadwal berdasarkan kata kunci..." class="filter-input">
                     <button type="submit" class="btn-filter">Cari Jadwal</button>
                     <?php if (!empty($search_query)): ?>
-                        <a href="jadwal_mengajar.php" class="btn-filter" style="background: #e2e8f0; color: #475569; text-decoration: none; text-align: center;">Reset</a>
-                    <?php
-endif; ?>
+                        <a href="jadwal_mengajar.php" class="btn-filter secondary">Reset</a>
+                    <?php endif; ?>
                 </form>
 
                 <?php if (empty($schedules)): ?>
                     <div class="empty-state">
-                        <div class="empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
                         <h3 style="color: #1e293b; margin-bottom: 8px;">Jadwal Tidak Ditemukan</h3>
                         <p>Belum ada jadwal yang ditemukan untuk kata kunci <strong>"<?php echo htmlspecialchars($search_query); ?>"</strong>.</p>
                     </div>
-                <?php
-else: ?>
+                <?php else: ?>
                     <div class="table-container">
                         <table>
                             <thead>
@@ -240,22 +229,18 @@ else: ?>
                                 <tr>
                                     <td><span class="badge-hari"><?php echo htmlspecialchars($s['hari']); ?></span></td>
                                     <td><span class="badge-jam">Jam <?php echo htmlspecialchars($s['jam_ke']); ?></span></td>
-                                    <td><span style="color: #64748b; font-size: 0.9rem; font-weight: 500;"><?php echo htmlspecialchars($s['waktu']); ?></span></td>
+                                    <td><span style="color: #64748b; font-size: 0.88rem; font-weight: 500;"><?php echo htmlspecialchars($s['waktu']); ?></span></td>
                                     <td><span class="badge-kelas">Kelas <?php echo htmlspecialchars($s['kelas']); ?></span></td>
                                     <td><strong style="color: #0f172a;"><?php echo htmlspecialchars($s['mata_pelajaran']); ?></strong></td>
-                                    <td style="color: #64748b; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <?php echo htmlspecialchars($s['nama_guru']); ?>
-                                    </td>
+                                    <td style="color: #64748b; font-size: 0.85rem;"><?php echo htmlspecialchars($s['nama_guru']); ?></td>
                                 </tr>
-                                <?php
-    endforeach; ?>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
                     </div>
-                <?php
-endif; ?>
+                <?php endif; ?>
             </div>
-        </div>
+        </div><!-- end page-content -->
     </main>
 </div>
 

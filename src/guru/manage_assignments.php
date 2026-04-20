@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/guru/manage_assignments.php
 session_start();
 require_once '../../config/database.php';
@@ -283,6 +283,22 @@ $total_archived = array_sum(array_map(fn($g) => count($g['assignments']), $group
     <title>Kelola Tugas - Guru</title>
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 2.5rem 3rem 5rem; position: relative; overflow: hidden;
+        }
+        .page-hero::before { content:''; position:absolute; right:-60px; top:-60px; width:250px; height:250px; background:rgba(255,255,255,0.07); border-radius:50%; }
+        .page-hero h1 { color:#fff; font-size:1.6rem; font-weight:700; margin:0 0 0.4rem; }
+        .page-hero p  { color:rgba(255,255,255,0.8); margin:0; font-size:0.95rem; }
+        .page-hero .back-link { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.8); text-decoration:none; font-size:0.85rem; background:rgba(255,255,255,0.1); padding:5px 12px; border-radius:20px; margin-bottom:1rem; }
+        .page-hero .back-link:hover { background:rgba(255,255,255,0.2); }
+        .page-content { position:relative; margin-top:-2.5rem; padding:0 3rem 3rem; z-index:10; }
+        .db-section { background:#fff; border:1px solid #e8edf5; border-radius:14px; overflow:hidden; margin-bottom:1.5rem; }
+        .section-header { padding:16px 20px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; }
+        .section-header h3 { margin:0; font-size:1rem; font-weight:700; color:#0f172a; }
+    </style>
 </head>
 <body class="unified-layout">
 
@@ -290,47 +306,38 @@ $total_archived = array_sum(array_map(fn($g) => count($g['assignments']), $group
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <!-- Unified Dashboard Hero -->
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <div style="margin-bottom: 1rem;">
-                    <a href="<?php echo htmlspecialchars($back_url); ?>" style="color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; width: fit-content; backdrop-filter: blur(4px);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
-                        <?php echo htmlspecialchars($back_text); ?>
-                    </a>
-                </div>
-                <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Kelola Tugas & Ujian</h1>
-                <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; max-width: 600px;">Buat, bagikan, dan nilai tugas siswa.</p>
-            </div>
-
-            <!-- Decorative circle -->
-            <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div class="page-hero">
+            <a href="<?php echo htmlspecialchars($back_url); ?>" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                <?php echo htmlspecialchars($back_text); ?>
+            </a>
+            <h1>Kelola Tugas &amp; Ujian</h1>
+            <p>Buat, bagikan, dan nilai tugas siswa.</p>
         </div>
 
-        <!-- Content Overlap Wrapper -->
-        <div class="content-overlap">
+        <div class="page-content">
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
             <!-- List Tugas -->
-            <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
 
                 <!-- ===== ACTIVE ===== -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div class="db-section">
+                    <div class="section-header">
                         <div>
-                            <h3 style="margin: 0;">Daftar Tugas Aktif</h3>
-                            <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--text-muted);"><?php echo $total_active; ?> tugas di <?php echo count($grouped_active); ?> kelas</p>
+                            <h3>Daftar Tugas Aktif</h3>
+                            <p style="margin:4px 0 0; font-size:0.82rem; color:#64748b;"><?php echo $total_active; ?> tugas di <?php echo count($grouped_active); ?> kelas</p>
                         </div>
                         <div class="filter-group" style="display: flex; gap: 5px; background: #f1f5f9; padding: 4px; border-radius: 8px;">
                             <?php $ft = $_GET['filter_type'] ?? 'all'; ?>
-                            <a href="manage_assignments.php?filter_type=all" style="padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; color: <?php echo $ft == 'all' ? '#fff' : '#64748b'; ?>; background: <?php echo $ft == 'all' ? '#4f46e5' : 'transparent'; ?>;">Semua</a>
-                            <a href="manage_assignments.php?filter_type=tugas" style="padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; color: <?php echo $ft == 'tugas' ? '#fff' : '#64748b'; ?>; background: <?php echo $ft == 'tugas' ? '#4f46e5' : 'transparent'; ?>;">Tugas</a>
-                            <a href="manage_assignments.php?filter_type=absensi" style="padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; color: <?php echo $ft == 'absensi' ? '#fff' : '#64748b'; ?>; background: <?php echo $ft == 'absensi' ? '#4f46e5' : 'transparent'; ?>;">Absensi</a>
+                            <a href="manage_assignments.php?filter_type=all" style="padding: 5px 11px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; color: <?php echo $ft == 'all' ? '#fff' : '#64748b'; ?>; background: <?php echo $ft == 'all' ? '#4f46e5' : 'transparent'; ?>;">Semua</a>
+                            <a href="manage_assignments.php?filter_type=tugas" style="padding: 5px 11px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; color: <?php echo $ft == 'tugas' ? '#fff' : '#64748b'; ?>; background: <?php echo $ft == 'tugas' ? '#4f46e5' : 'transparent'; ?>;">Tugas</a>
+                            <a href="manage_assignments.php?filter_type=absensi" style="padding: 5px 11px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; text-decoration: none; color: <?php echo $ft == 'absensi' ? '#fff' : '#64748b'; ?>; background: <?php echo $ft == 'absensi' ? '#4f46e5' : 'transparent'; ?>;">Absensi</a>
                         </div>
                     </div>
 
                     <?php if (empty($grouped_active)): ?>
-                        <p style="color: var(--text-muted);">Tidak ada tugas aktif.</p>
+                        <p style="color: #64748b; padding: 20px;">Tidak ada tugas aktif.</p>
                     <?php else: ?>
                         <div style="display: flex; flex-direction: column; gap: 1rem;">
                         <?php $acc_idx = 0; foreach ($grouped_active as $class_name => $group): $acc_idx++; $acc_id = 'acc_active_' . $acc_idx; $count = count($group['assignments']); ?>
@@ -401,7 +408,7 @@ $total_archived = array_sum(array_map(fn($g) => count($g['assignments']), $group
                 </div>
 
                 <!-- ===== ARCHIVED ===== -->
-                <div class="card" style="background: #f8fafc; border: 1px dashed #cbd5e1;">
+                <div class="db-section" style="background: #f8fafc; border-style: dashed;">
                     <h3 style="color: #64748b; font-size: 1rem; margin-bottom: 1rem;">Tugas Diarsipkan / Ditarik</h3>
                     <?php if (empty($grouped_archived)): ?>
                         <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada tugas yang diarsipkan.</p>
@@ -438,7 +445,7 @@ $total_archived = array_sum(array_map(fn($g) => count($g['assignments']), $group
             </div>
             
             <!-- Create Form -->
-            <div class="card" style="height: fit-content;">
+            <div class="db-section" style="height: fit-content;">
                 <h3>Buat Tugas Baru</h3>
                 <?php
 if (isset($_SESSION['flash'])) {
@@ -507,8 +514,8 @@ endforeach; ?>
                     <button type="submit" class="btn" style="width: 100%;">Terbitkan Tugas</button>
                 </form>
             </div>
-        </div>
-        </div>
+        </div><!-- end grid -->
+        </div><!-- end page-content -->
     </main>
 </div>
 

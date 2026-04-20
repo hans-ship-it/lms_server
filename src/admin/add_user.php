@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/admin/add_user.php
 session_start();
 require_once '../../config/database.php';
@@ -145,6 +145,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title><?php echo $edit_mode ? "Edit Pengguna" : "Tambah Pengguna Baru"; ?> - Admin</title>
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 2.5rem 3rem 4rem; position: relative; overflow: hidden; color: white;
+        }
+        .page-hero::before { content:''; position:absolute; right:-60px; top:-60px; width:250px; height:250px; background:rgba(255,255,255,0.07); border-radius:50%; pointer-events:none; }
+        .page-hero h1 { font-size:1.6rem; font-weight:700; margin:0 0 0.8rem; }
+        .back-link { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.8); text-decoration:none; font-size:0.85rem; background:rgba(255,255,255,0.1); padding:5px 12px; border-radius:20px; margin-bottom:1rem; }
+        .back-link:hover { background:rgba(255,255,255,0.2); }
+        .page-content { position:relative; margin-top:-2rem; padding:0 3rem 3rem; z-index:10; }
+        .db-section { background:#fff; border:1px solid #e8edf5; border-radius:14px; overflow:hidden; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.02); }
+        @media (max-width:768px) { .page-content { padding:0 1rem 2rem; } .page-hero { padding:2rem 1.5rem 3rem; } }
+    </style>
     <script>
         function toggleFields() {
             const role = document.getElementById('roleSelect').value;
@@ -200,20 +214,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <main class="main-content">
         <!-- Unified Hero Header -->
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <h1 style="color: white; margin-bottom: 0.5rem;"><?php echo $edit_mode ? "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block; vertical-align:middle; line-height:1;'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg> Edit Pengguna" : "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block; vertical-align:middle; line-height:1;'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Tambah Pengguna Baru"; ?></h1>
-                <p style="color: rgba(255,255,255,0.8);"><?php echo $edit_mode ? "Perbarui data pengguna yang sudah terdaftar." : "Daftarkan pengguna baru ke dalam sistem."; ?></p>
+        <div class="page-hero">
+            <a href="manage_users.php" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                Kembali ke Daftar Pengguna
+            </a>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+                <div style="position: relative; z-index: 2;">
+                    <h1><?php echo $edit_mode ? "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block; vertical-align:middle; line-height:1;'><path d='M12 20h9'/><path d='M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'/></svg> Edit Pengguna" : "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block; vertical-align:middle; line-height:1;'><line x1='12' y1='5' x2='12' y2='19'/><line x1='5' y1='12' x2='19' y2='12'/></svg> Tambah Pengguna Baru"; ?></h1>
+                    <span style="background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight:600;"><?php echo $edit_mode ? "Perbarui data pengguna yang sudah terdaftar." : "Daftarkan pengguna baru ke dalam sistem."; ?></span>
+                </div>
             </div>
-            <div style="position: absolute; right: 40px; top: 50%; transform: translateY(-50%); z-index: 10;">
-                <a href="manage_users.php" class="btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(5px);">&larr; Kembali ke Daftar</a>
-            </div>
-            <!-- Decorative circle -->
-            <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
         </div>
 
-        <div class="content-overlap">
-            <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <div class="page-content">
+            <div class="db-section" style="max-width: 800px; margin: 0 auto;">
             <?php if (isset($error) && $error)
     echo "<div class='badge badge-danger' style='display:block; padding: 1rem; margin-bottom: 1rem; text-align:center;'>$error</div>"; ?>
             

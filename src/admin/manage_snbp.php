@@ -221,17 +221,31 @@ if (file_exists($order_file)) {
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .page-header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 2.5rem 3rem 5rem; position: relative; overflow: hidden;
         }
+        .page-hero::before { content:''; position:absolute; right:-60px; top:-60px; width:250px; height:250px; background:rgba(255,255,255,0.07); border-radius:50%; }
+        .page-hero h1 { color:#fff; font-size:1.6rem; font-weight:700; margin:0 0 0.4rem; }
+        .page-hero p  { color:rgba(255,255,255,0.8); margin:0; font-size:0.95rem; }
+        .page-content { position:relative; margin-top:-2.5rem; padding:0 3rem 3rem; z-index:10; }
         .upload-section {
-            background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 2rem;
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-radius: 14px;
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.5rem;
         }
         .gallery-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;
         }
         .gallery-item {
-            background: #fff; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center;
+            background: #fff;
+            border: 1px solid #e8edf5;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
         }
         .gallery-img {
             width: 100%; height: 150px; object-fit: contain; border-radius: 8px; margin-bottom: 1rem; background: #f8fafc;
@@ -244,21 +258,24 @@ if (file_exists($order_file)) {
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <div class="page-header">
-            <div>
-                <h1 style="font-size: 1.8rem; font-weight: 700; color: #1e293b;">Kelola Index Kelulusan SNBP</h1>
-                <p style="color: #64748b;">Unggah dan hapus foto siswa-siswi yang lulus SNBP untuk ditampilkan di halaman utama.</p>
-            </div>
+        <div class="page-hero">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:8px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.23a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 0.5h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91"/><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg>
+                Kelola Index Kelulusan SNBP
+            </h1>
+            <p>Unggah dan hapus foto siswa-siswi yang lulus SNBP untuk ditampilkan di halaman utama.</p>
         </div>
 
+        <div class="page-content">
+
         <?php if (isset($_SESSION['success_msg'])): ?>
-            <div style="background: #d1fae5; color: #065f46; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="background:#f0fdf4; color:#166534; padding:14px 18px; border-radius:10px; margin-bottom:16px; border:1px solid #bbf7d0;">
                 <?php echo $_SESSION['success_msg']; unset($_SESSION['success_msg']); ?>
             </div>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['error_msg'])): ?>
-            <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="background:#fef2f2; color:#991b1b; padding:14px 18px; border-radius:10px; margin-bottom:16px; border:1px solid #fecaca;">
                 <?php echo $_SESSION['error_msg']; unset($_SESSION['error_msg']); ?>
             </div>
         <?php endif; ?>
@@ -527,7 +544,7 @@ if (file_exists($order_file)) {
                     .gallery-grid { user-select: none; }
                 </style>
             <?php endif; ?>
-        </div>
+        </div><!-- end page-content -->
 
     </main>
 </div>

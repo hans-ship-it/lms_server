@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/guru/view_attendance.php
 session_start();
 require_once '../../config/database.php';
@@ -118,46 +118,37 @@ else {
             padding: 0 !important;
         }
 
-        .att-hero {
-            position: relative;
-            background: linear-gradient(135deg, #064e3b 0%, #047857 40%, #10b981 100%);
-            padding: 2rem 3rem 4.5rem 5rem;
-            overflow: hidden;
+        .page-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 2.5rem 3rem 4rem; position: relative; overflow: hidden; color: white;
         }
-        .att-hero::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            pointer-events: none;
+        .page-hero::before {
+            content:''; position:absolute; right:-60px; top:-60px; width:250px; height:250px; background:rgba(255,255,255,0.07); border-radius:50%; pointer-events:none;
         }
         .hero-top {
             position: relative; z-index: 2;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .hero-top a.back { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.85rem; }
-        .hero-top a.back:hover { color: #fff; }
+        .hero-top a.back { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.8); text-decoration:none; font-size:0.85rem; background:rgba(255,255,255,0.1); padding:5px 12px; border-radius:20px; margin-bottom:1rem; }
+        .hero-top a.back:hover { background:rgba(255,255,255,0.2); }
         .hero-info { position: relative; z-index: 2; margin-top: 1rem; }
-        .hero-info h1 { color: #fff; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.3rem; }
-        .hero-info p { color: rgba(255,255,255,0.5); font-size: 0.88rem; }
+        .hero-info h1 { color: #fff; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .hero-info p { color: rgba(255,255,255,0.8); font-size: 0.88rem; }
 
-        .att-content {
+        .page-content {
             position: relative;
-            margin-top: -2.5rem;
+            margin-top: -2rem;
             padding: 0 3rem 3rem;
             z-index: 10;
         }
 
-        .att-panel {
+        .db-section {
             background: #fff;
-            border-radius: 18px;
+            border: 1px solid #e8edf5;
+            border-radius: 14px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 24px rgba(0,0,0,0.04);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
             margin-bottom: 20px;
-            animation: fade-up 0.4s ease-out both;
-        }
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .filter-bar {
@@ -295,8 +286,6 @@ else {
                 print-color-adjust: exact !important; 
             }
             .app-container { display: block !important; margin: 0 !important; padding: 0 !important; }
-            .sidebar, .att-hero, .filter-bar, .btn-print, .hero-top, .no-print { display: none !important; }
-            
             .main-content { 
                 width: 100% !important; max-width: none !important; 
                 margin: 0 !important; padding: 0 !important; 
@@ -304,12 +293,12 @@ else {
                 box-shadow: none !important;
             }
             
-            .att-content { 
+            .page-content { 
                 margin: 0 !important; padding: 0 !important; 
                 width: 100% !important; 
             }
             
-            .att-panel {
+            .db-section {
                 border: none !important;
                 box-shadow: none !important; 
                 margin-bottom: 14px !important;
@@ -405,8 +394,8 @@ else {
         .print-header { display: none; }
 
         @media (max-width: 900px) {
-            .att-hero { padding: 1.5rem 1.5rem 4rem; }
-            .att-content { padding: 0 1.5rem 2rem; }
+            .page-hero { padding: 1.5rem 1.5rem 3rem; }
+            .page-content { padding: 0 1.5rem 2rem; }
         }
     </style>
 </head>
@@ -417,7 +406,7 @@ else {
     
     <main class="main-content">
 
-        <div class="att-hero">
+        <div class="page-hero">
             <div class="hero-top">
                 <a href="view_class.php?id=<?php echo $class_id; ?>" class="back">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
@@ -430,7 +419,7 @@ else {
             </div>
         </div>
 
-        <div class="att-content">
+        <div class="page-content">
 
             <!-- Print Header (only visible when printing) -->
             <div class="print-header">
@@ -439,7 +428,7 @@ else {
                 <p>Dicetak: <?php echo date('d M Y H:i'); ?></p>
             </div>
 
-            <div class="att-panel no-print att-filter-panel">
+            <div class="db-section no-print att-filter-panel">
                 <div class="filter-bar">
                     <label for="meetingFilter">Filter Pertemuan:</label>
                     <div class="filter-actions">
@@ -461,7 +450,7 @@ else {
             </div>
 
             <?php if (empty($display_data)): ?>
-                <div class="att-panel">
+                <div class="db-section">
                     <div style="text-align:center; padding:3rem; color:#94a3b8;">
                         <p style="font-size:2.5rem; margin-bottom:8px;"><svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block; vertical-align:middle; line-height:1;'><path d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'/><rect x='8' y='2' width='8' height='4' rx='1' ry='1'/></svg></p>
                         <p>Belum ada data absensi untuk pertemuan ini.</p>
@@ -481,7 +470,7 @@ else: ?>
         }
         $total_students = count($students);
 ?>
-                <div class="att-panel">
+                <div class="db-section">
                     <div class="meeting-title">Pertemuan <?php echo $meeting_num; ?></div>
                     <div class="meeting-meta">
                         Tanggal: <?php echo date('d M Y', strtotime($data['info']['deadline'])); ?>

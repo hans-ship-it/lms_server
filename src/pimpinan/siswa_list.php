@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/pimpinan/siswa_list.php
 session_start();
 require_once '../../config/database.php';
@@ -8,189 +8,193 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['kepsek', 'wak
     exit;
 }
 
-$search_query = $_GET['search'] ?? '';
-$filter_class = $_GET['class_id'] ?? '';
+$search          = $_GET['search']     ?? '';
+$filter_kelas    = $_GET['kelas']      ?? '';
+$filter_jenjang  = $_GET['jenjang']    ?? '';
 
-try {
-    $classes = $pdo->query("SELECT * FROM classes ORDER BY grade_level, LENGTH(name), name")->fetchAll();
-}
-catch (PDOException $e) {
-    $classes = [];
-}
+// Get class list for filter
+$all_classes = $pdo->query("SELECT DISTINCT name FROM classes ORDER BY name ASC")->fetchAll(PDO::FETCH_COLUMN);
 
-$sql = "SELECT users.*, classes.name as class_name 
-        FROM users 
-        LEFT JOIN classes ON users.class_id = classes.id 
-        WHERE users.role = 'siswa' ";
+$sql = "SELECT u.id, u.full_name, u.username,
+               c.name AS kelas_name, c.grade_level
+        FROM users u
+        LEFT JOIN classes c ON u.class_id = c.id
+        WHERE u.role = 'siswa'";
 
 $params = [];
-
-if ($search_query) {
-    $sql .= " AND (users.full_name LIKE ? OR users.username LIKE ? OR users.nis LIKE ?) ";
-    $params[] = "%$search_query%";
-    $params[] = "%$search_query%";
-    $params[] = "%$search_query%";
+if ($search) {
+    $sql .= " AND (u.full_name LIKE ? OR u.username LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
 }
+if ($filter_kelas)   { $sql .= " AND c.name = ?";        $params[] = $filter_kelas;   }
+if ($filter_jenjang) { $sql .= " AND c.grade_level = ?"; $params[] = $filter_jenjang; }
 
-if ($filter_class) {
-    $sql .= " AND users.class_id = ? ";
-    $params[] = $filter_class;
-}
+$sql .= " ORDER BY c.grade_level ASC, c.name ASC, u.full_name ASC";
 
-$sql .= " ORDER BY classes.grade_level ASC, classes.name ASC, users.full_name ASC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-$siswaList = $stmt->fetchAll();
+$siswa_list = $stmt->fetchAll();
+$total_siswa = count($siswa_list);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Direktori Siswa - Pimpinan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Siswa - Pimpinan</title>
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .role-badge { padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
-        /* Layout hero; warna dari html[data-lms-role] di style.css */
-        .main-content > .dashboard-hero {
-            margin: -2rem -2rem 2rem -2rem !important;
-            width: calc(100% + 4rem) !important;
-            padding: 2.5rem 3rem !important;
-            border-radius: 0 0 40px 0 !important;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+            padding: 2.5rem 3rem 5rem;
+            position: relative; overflow: hidden;
         }
-        .main-content {
-            padding: 2rem;
+        .page-hero::before {
+            content: ''; position: absolute;
+            right: -60px; top: -60px;
+            width: 250px; height: 250px;
+            background: rgba(255,255,255,0.07); border-radius: 50%;
         }
-        .table-container { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 1rem; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .user-info { display: flex; align-items: center; gap: 1rem; }
-        .user-avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .page-hero h1 { color: #fff; font-size: 1.6rem; font-weight: 700; margin: 0 0 0.4rem; }
+        .page-hero p  { color: rgba(255,255,255,0.8); margin: 0; font-size: 0.95rem; }
+        .page-content {
+            position: relative; margin-top: -2.5rem;
+            padding: 0 3rem 3rem; z-index: 10;
+        }
+        .stat-chip {
+            background: #fff; border: 1px solid #e8edf5;
+            border-radius: 12px; padding: 14px 20px;
+            display: inline-flex; align-items: center; gap: 10px;
+            margin-bottom: 1.2rem;
+        }
+        .stat-chip-val { font-size: 1.4rem; font-weight: 800; color: #1d4ed8; }
+        .stat-chip-lbl { font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
+        .filter-bar {
+            background: #fff; border-radius: 12px;
+            border: 1px solid #e8edf5; padding: 14px 18px;
+            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.2rem;
+        }
+        .filter-bar input, .filter-bar select {
+            padding: 8px 12px; border: 1px solid #e2e8f0;
+            border-radius: 8px; font-family: inherit;
+            font-size: 0.88rem; background: #f8fafc;
+        }
+        .filter-bar input { flex: 2; min-width: 180px; }
+        .filter-bar select { flex: 1; min-width: 130px; }
+        .btn-filter {
+            padding: 8px 18px; background: #1d4ed8;
+            color: #fff; border: none; border-radius: 8px;
+            font-weight: 600; font-size: 0.88rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .db-section {
+            background: #fff; border-radius: 14px;
+            border: 1px solid #e8edf5; overflow: hidden;
+        }
+        .section-head {
+            padding: 14px 20px; border-bottom: 1px solid #f1f5f9;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-head h3 { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .siswa-row {
+            display: flex; align-items: center; gap: 14px;
+            padding: 13px 20px; border-bottom: 1px solid #f8fafc;
+        }
+        .siswa-row:last-child { border-bottom: none; }
+        .siswa-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed, #a78bfa);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+        .siswa-name { font-weight: 700; color: #0f172a; font-size: 0.9rem; }
+        .siswa-meta { font-size: 0.78rem; color: #94a3b8; margin-top: 2px; }
+        .badge-kelas {
+            margin-left: auto; flex-shrink: 0;
+            background: #eff6ff; color: #1d4ed8;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 0.78rem; font-weight: 700;
+        }
+        .no-kelas { color: #94a3b8; font-size: 0.78rem; margin-left: auto; }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: #94a3b8; }
+        @media (max-width: 768px) {
+            .page-content { padding: 0 1rem 2rem; }
+            .page-hero { padding: 2rem 1.5rem 4.5rem; }
+            .filter-bar { flex-direction: column; }
+        }
     </style>
 </head>
-<body style="background-color: #f8fafc;">
+<body>
 
 <div class="app-container">
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <!-- Unified Hero Header -->
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <h1 style="color: white; margin-bottom: 0.5rem;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Direktori Siswa</h1>
-                <p style="color: rgba(255,255,255,0.8);">Pantau data seluruh siswa di sekolah berdasarkan kelas.</p>
-            </div>
-            <!-- Decorative circle -->
-            <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div class="page-hero">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:8px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Direktori Siswa
+            </h1>
+            <p>Pantau data dan penempatan kelas seluruh siswa.</p>
         </div>
-        
-        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-            <div style="margin-bottom: 1.5rem;">
-                <form method="GET" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <input type="text" name="search" placeholder="Cari nama, NIS, username..." value="<?php echo htmlspecialchars($search_query); ?>" style="flex: 2; min-width: 200px; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit;">
-                    
-                    <select name="class_id" style="flex: 1; min-width: 150px; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; background: white;">
-                        <option value="">Semua Kelas</option>
-                        <?php foreach ($classes as $c): ?>
-                            <option value="<?php echo $c['id']; ?>" <?php echo $filter_class == $c['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($c['name']); ?>
-                            </option>
-                        <?php
-endforeach; ?>
-                    </select>
 
-                    <button type="submit" style="background: #0ea5e9; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Filter</button>
-                    <!-- Reset Button -->
-                    <?php if ($search_query || $filter_class): ?>
-                        <a href="siswa_list.php" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: flex; align-items: center; justify-content: center;">Reset</a>
-                    <?php
-endif; ?>
-                </form>
+        <div class="page-content">
+            <div class="stat-chip">
+                <div>
+                    <div class="stat-chip-val"><?php echo $total_siswa; ?></div>
+                    <div class="stat-chip-lbl">Total Siswa (terfilter)</div>
+                </div>
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Siswa</th>
-                            <th>Kelas</th>
-                            <th>Gender & Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($siswaList)): ?>
-                            <tr>
-                                <td colspan="3" style="text-align: center; color: #64748b; padding: 2rem;">Tidak ada data siswa ditemukan.</td>
-                            </tr>
-                        <?php
-else: ?>
-                            <?php foreach ($siswaList as $u): ?>
-                            <tr>
-                                <td>
-                                    <div class="user-info">
-                                        <?php if ($u['photo_path']): ?>
-                                            <img src="/<?php echo htmlspecialchars($u['photo_path']); ?>" class="user-avatar">
-                                        <?php
-        else: ?>
-                                            <div class="user-avatar-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-                                        <?php
-        endif; ?>
-                                        <div>
-                                            <strong style="color: #0f172a; font-size: 0.95rem;"><?php echo htmlspecialchars($u['full_name']); ?></strong><br>
-                                            <span style="color: #64748b; font-size: 0.8rem;">@<?php echo htmlspecialchars($u['username']); ?></span>
-                                            <?php if ($u['nis']): ?>
-                                                <div style="font-size: 0.75rem; color: #475569;">NIS: <?php echo htmlspecialchars($u['nis']); ?></div>
-                                            <?php
-        endif; ?>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <?php if ($u['class_name']): ?>
-                                        <span style="background: #f1f5f9; color: #334155; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
-                                            Kelas <?php echo htmlspecialchars($u['class_name']); ?>
-                                        </span>
-                                    <?php
-        else: ?>
-                                        <span style="color: #94a3b8; font-style: italic; font-size: 0.85rem;">Belum diatur</span>
-                                    <?php
-        endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($u['gender'])
-            echo($u['gender'] == 'L' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Laki-laki' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Perempuan') . '<br>'; ?>
-                                    <div style="margin-top: 6px;">
-                                        <?php if ($u['status'] == 'active'): ?>
-                                            <span style="color: #10b981; font-size: 0.8rem; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><polyline points="20 6 9 17 4 12"/></svg> AKTIF</span>
-                                        <?php
-        elseif ($u['status'] == 'graduated'): ?>
-                                            <span style="color: #64748b; font-size: 0.8rem; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> TAMAT</span>
-                                        <?php
-        elseif ($u['status'] == 'suspended'): ?>
-                                            <span style="color: #ef4444; font-size: 0.8rem; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> SUSPEND</span>
-                                        <?php
-        else: ?>
-                                            <span style="color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;"><?php echo htmlspecialchars($u['status']); ?></span>
-                                        <?php
-        endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php
-    endforeach; ?>
-                        <?php
-endif; ?>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style="margin-top: 1rem; font-size: 0.85rem; color: #64748b; text-align: right;">
-                Total Siswa: <?php echo count($siswaList); ?>
+            <form method="GET" class="filter-bar">
+                <input type="text" name="search" placeholder="Cari nama atau username siswa..." value="<?php echo htmlspecialchars($search); ?>">
+                <select name="jenjang">
+                    <option value="">Semua Jenjang</option>
+                    <option value="10" <?php echo $filter_jenjang == '10' ? 'selected' : ''; ?>>Kelas 10</option>
+                    <option value="11" <?php echo $filter_jenjang == '11' ? 'selected' : ''; ?>>Kelas 11</option>
+                    <option value="12" <?php echo $filter_jenjang == '12' ? 'selected' : ''; ?>>Kelas 12</option>
+                </select>
+                <select name="kelas">
+                    <option value="">Semua Kelas</option>
+                    <?php foreach ($all_classes as $k): ?>
+                        <option value="<?php echo $k; ?>" <?php echo $filter_kelas == $k ? 'selected' : ''; ?>><?php echo htmlspecialchars($k); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="btn-filter">Filter</button>
+                <?php if ($search || $filter_kelas || $filter_jenjang): ?>
+                    <a href="siswa_list.php" style="padding:8px 14px; background:#f1f5f9; color:#475569; border-radius:8px; font-weight:600; font-size:0.88rem; text-decoration:none; display:flex; align-items:center;">Reset</a>
+                <?php endif; ?>
+            </form>
+
+            <div class="db-section">
+                <div class="section-head">
+                    <h3>Daftar Siswa</h3>
+                    <span style="font-size:0.82rem; color:#94a3b8;"><?php echo $total_siswa; ?> siswa</span>
+                </div>
+                <?php if (empty($siswa_list)): ?>
+                    <div class="empty-state">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;opacity:0.4;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        <p style="font-weight:600; color:#64748b;">Tidak ada siswa yang ditemukan.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($siswa_list as $s): ?>
+                        <div class="siswa-row">
+                            <div class="siswa-avatar"><?php echo strtoupper(substr($s['full_name'], 0, 1)); ?></div>
+                            <div>
+                                <div class="siswa-name"><?php echo htmlspecialchars($s['full_name']); ?></div>
+                                <div class="siswa-meta">@<?php echo htmlspecialchars($s['username']); ?> &bull; <?php echo htmlspecialchars($s['email'] ?? '-'); ?></div>
+                            </div>
+                            <?php if ($s['kelas_name']): ?>
+                                <span class="badge-kelas"><?php echo htmlspecialchars($s['kelas_name']); ?></span>
+                            <?php else: ?>
+                                <span class="no-kelas">Belum ada kelas</span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </main>
@@ -198,4 +202,3 @@ endif; ?>
 
 </body>
 </html>
-

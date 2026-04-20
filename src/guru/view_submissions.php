@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/guru/view_submissions.php
 session_start();
 require_once '../../config/database.php';
@@ -49,6 +49,27 @@ $submissions = $stmt->fetchAll();
     <title>Penilaian Tugas</title>
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 2.5rem 3rem 4rem; position: relative; overflow: hidden; color: white;
+        }
+        .page-hero::before { content:''; position:absolute; right:-60px; top:-60px; width:250px; height:250px; background:rgba(255,255,255,0.07); border-radius:50%; pointer-events:none; }
+        .page-hero h1 { font-size:1.6rem; font-weight:700; margin:0 0 0.8rem; }
+        .back-link { display:inline-flex; align-items:center; gap:6px; color:rgba(255,255,255,0.8); text-decoration:none; font-size:0.85rem; background:rgba(255,255,255,0.1); padding:5px 12px; border-radius:20px; margin-bottom:1rem; }
+        .back-link:hover { background:rgba(255,255,255,0.2); }
+        .page-content { position:relative; margin-top:-2rem; padding:0 3rem 3rem; z-index:10; }
+        .db-section { background:#fff; border:1px solid #e8edf5; border-radius:14px; overflow:hidden; padding:24px; box-shadow:0 1px 3px rgba(0,0,0,0.02); }
+        .btn-action { padding:6px 12px; border-radius:8px; display:inline-flex; align-items:center; gap:6px; text-decoration:none; font-size:0.85rem; font-weight:600; cursor:pointer; border:none; }
+        .btn-excel { background:#16a34a; color:white; }
+        .btn-pdf { background:#dc2626; color:white; }
+        .badge-status { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { background: #f8fafc; font-weight: 700; color: #475569; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        @media (max-width:768px) { .page-content { padding:0 1rem 2rem; } .page-hero { padding:2rem 1.5rem 3rem; } }
+    </style>
 </head>
 <body>
 
@@ -56,27 +77,36 @@ $submissions = $stmt->fetchAll();
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <div style="margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <a href="manage_assignments.php" class="btn btn-secondary">&larr; Kembali</a>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                <a href="export_grades.php?assignment_id=<?php echo intval($assignment_id); ?>" class="btn" style="background:#16a34a; color:#fff; display:inline-flex; align-items:center; gap:6px; font-size:0.88rem;" title="Download CSV untuk Excel">
-                    <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='7 10 12 15 17 10'/><line x1='12' y1='15' x2='12' y2='3'/></svg>
-                    Excel / CSV
-                </a>
-                <a href="export_grades_print.php?assignment_id=<?php echo intval($assignment_id); ?>" target="_blank" class="btn" style="background:#dc2626; color:#fff; display:inline-flex; align-items:center; gap:6px; font-size:0.88rem;" title="Cetak / Simpan sebagai PDF">
-                    <svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 6 2 18 2 18 9'/><path d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/><rect x='6' y='14' width='12' height='8'/></svg>
-                    PDF / Print
-                </a>
+    <main class="main-content">
+        <div class="page-hero">
+            <a href="manage_assignments.php" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+                Kembali
+            </a>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <h1><?php echo htmlspecialchars($assignment['title']); ?></h1>
+                    <span style="background:rgba(255,255,255,0.2); padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight:600;">Penilaian Tugas</span>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <a href="export_grades.php?assignment_id=<?php echo intval($assignment_id); ?>" class="btn-action btn-excel">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points='7 10 12 15 17 10'/><line x1='12' y1='15' x2='12' y2='3'/></svg> Excel / CSV
+                    </a>
+                    <a href="export_grades_print.php?assignment_id=<?php echo intval($assignment_id); ?>" target="_blank" class="btn-action btn-pdf">
+                        <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 6 2 18 2 18 9'/><path d='M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2'/><rect x='6' y='14' width='12' height='8'/></svg> PDF / Print
+                    </a>
+                </div>
             </div>
         </div>
         
-        <header style="margin-bottom: 1.5rem;">
-            <h2><?php echo htmlspecialchars($assignment['title']); ?></h2>
-            <?php if (isset($success))
-    echo "<div style='background:#dcfce7; color:#166534; padding:10px; border-radius:8px;'>$success</div>"; ?>
-        </header>
+        <div class="page-content">
+            <?php if (isset($success)): ?>
+                <div style="background:#dcfce7; color:#166534; padding:14px 20px; border-radius:10px; margin-bottom:1.5rem; font-weight:600; border:1px solid #bbf7d0;">
+                    ✓ <?php echo htmlspecialchars($success); ?>
+                </div>
+            <?php endif; ?>
         
-        <div class="card">
+        <div class="db-section">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:10px;">
                 <h3 style="margin:0; font-size:1rem; color:#475569;">
                     Total mengumpulkan: <strong style="color:#1e293b;"><?php echo count($submissions); ?> siswa</strong>
@@ -167,10 +197,10 @@ $submissions = $stmt->fetchAll();
                                     <input type="number" name="grade" value="<?php echo $sub['grade']; ?>" min="0" max="100" style="width: 80px;" placeholder="0">
                                 </td>
                                 <td>
-                                    <input type="text" name="feedback" value="<?php echo htmlspecialchars($sub['feedback'] ?? ''); ?>" placeholder="Tulis komentar..." style="font-size: 0.9rem;">
+                                    <input type="text" name="feedback" value="<?php echo htmlspecialchars($sub['feedback'] ?? ''); ?>" placeholder="Tulis komentar..." style="font-size:0.9rem; padding:8px 12px; border:1px solid #e2e8f0; border-radius:6px; width:100%; box-sizing:border-box;">
                                 </td>
                                 <td>
-                                    <button type="submit" class="btn" style="padding: 6px 12px; font-size: 12px;">Simpan</button>
+                                    <button type="submit" class="btn" style="padding:6px 12px; font-size:12px; border-radius:6px;">Simpan</button>
                                 </td>
                             </form>
                         </tr>
@@ -180,7 +210,8 @@ $submissions = $stmt->fetchAll();
 endif; ?>
                 </tbody>
             </table>
-        </div>
+        </div><!-- db-section -->
+        </div><!-- page-content -->
     </main>
 </div>
 

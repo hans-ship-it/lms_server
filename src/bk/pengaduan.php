@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/bk/pengaduan.php
 session_start();
 require_once '../../config/database.php';
@@ -52,36 +52,86 @@ try {
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .ticket-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #0f4c75 0%, #1b6ca8 50%, #2980b9 100%);
+            padding: 2.5rem 3rem 5rem;
+            position: relative;
+            overflow: hidden;
         }
-        .urgent { border-left-color: var(--danger); }
-        .ticket-header {
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            right: -60px; top: -60px;
+            width: 250px; height: 250px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 50%;
+        }
+        .page-hero::after {
+            content: '';
+            position: absolute;
+            right: 80px; bottom: -80px;
+            width: 160px; height: 160px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .page-hero h1 { color: #fff; font-size: 1.6rem; font-weight: 700; margin: 0 0 0.4rem; }
+        .page-hero p  { color: rgba(255,255,255,0.8); margin: 0; font-size: 0.95rem; }
+        .page-content {
+            position: relative;
+            margin-top: -2.5rem;
+            padding: 0 3rem 3rem;
+            z-index: 10;
+        }
+        .alert-success {
+            background: #dcfce7; color: #166534;
+            padding: 12px 18px; border-radius: 10px;
+            margin-bottom: 1.5rem; font-weight: 500;
+            border: 1px solid #bbf7d0;
+        }
+        .alert-error {
+            background: #fee2e2; color: #991b1b;
+            padding: 12px 18px; border-radius: 10px;
+            margin-bottom: 1.5rem; font-weight: 500;
+            border: 1px solid #fecaca;
+        }
+        .db-section {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #e8edf5;
+            overflow: hidden;
+            margin-bottom: 1.2rem;
+        }
+        .ticket-row {
+            padding: 18px 22px;
+        }
+        .ticket-top {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+            align-items: flex-start;
+            margin-bottom: 10px;
         }
-        .ticket-title {
-            font-size: 1.1rem;
+        .ticket-name {
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--secondary);
-            margin-bottom: 0.25rem;
+            color: #0f172a;
+        }
+        .ticket-kelas {
+            color: #94a3b8;
+            font-weight: 400;
+            font-size: 0.9rem;
+            margin-left: 6px;
         }
         .ticket-meta {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            color: #94a3b8;
+            font-size: 0.82rem;
             display: flex;
-            gap: 15px;
+            gap: 14px;
+            margin-top: 3px;
+            flex-wrap: wrap;
         }
         .badge-kategori {
-            padding: 4px 10px;
+            padding: 3px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 700;
@@ -89,27 +139,75 @@ try {
             color: #4338ca;
         }
         .badge-bullying { background: #fee2e2; color: #991b1b; }
-        
+        .status-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
         .ticket-body {
             background: #f8fafc;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-            line-height: 1.6;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 0.92rem;
+            line-height: 1.65;
+            color: #334155;
+            border-left: 3px solid #e8edf5;
         }
-        .status-form {
+        .ticket-actions {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
         }
-        .status-form select {
-            width: auto;
-            min-width: 150px;
-            padding: 0.5rem;
+        .ticket-actions select {
+            padding: 7px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            background: #fff;
         }
-        .status-form button {
-            padding: 0.5rem 1rem;
+        .btn-save {
+            padding: 7px 16px;
+            background: #4338ca;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-save:hover { background: #3730a3; }
+        .btn-del {
+            padding: 7px 16px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            font-family: inherit;
+            margin-left: auto;
+            text-decoration: none;
+        }
+        .btn-del:hover { background: #fecaca; }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #94a3b8;
+        }
+        .empty-state svg { margin-bottom: 1rem; opacity: 0.4; }
+        .urgent-border { border-left: 4px solid #ef4444 !important; }
+        @media (max-width: 768px) {
+            .page-content { padding: 0 1rem 2rem; }
+            .page-hero { padding: 2rem 1.5rem 4.5rem; }
+            .ticket-actions { flex-direction: column; align-items: flex-start; }
+            .btn-del { margin-left: 0; }
         }
     </style>
 </head>
@@ -119,85 +217,77 @@ try {
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <!-- Dashboard Hero -->
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <h1 style="color: white; margin-bottom: 0.5rem;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    Layanan E-Counseling BK
-                </h1>
-                <p style="color: rgba(255,255,255,0.8);">Kelola laporan dan pengaduan siswa</p>
-            </div>
-            <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+        <div class="page-hero">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Layanan E-Counseling BK
+            </h1>
+            <p>Kelola laporan dan pengaduan siswa</p>
         </div>
 
-        <div class="content-overlap">
+        <div class="page-content">
             <?php if (isset($_GET['msg'])): ?>
                 <?php if ($_GET['msg'] === 'updated'): ?>
-                    <div style="background: var(--primary-light); color: var(--primary); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
-                        Status tiket berhasil diperbarui.
-                    </div>
+                    <div class="alert-success">Status tiket berhasil diperbarui.</div>
                 <?php elseif ($_GET['msg'] === 'deleted'): ?>
-                    <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
-                        Tiket pengaduan berhasil dihapus.
-                    </div>
+                    <div class="alert-error">Tiket pengaduan berhasil dihapus.</div>
                 <?php endif; ?>
             <?php endif; ?>
 
             <?php if (isset($error)): ?>
-                <div style="background: #fee2e2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
-                    <?php echo htmlspecialchars($error); ?>
-                </div>
+                <div class="alert-error"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
 
             <?php if (empty($tickets)): ?>
-                <div class="card" style="text-align: center; padding: 3rem;">
-                    <p style="color: var(--text-muted); font-size: 1.1rem;">Belum ada tiket pengaduan yang masuk.</p>
+                <div class="db-section">
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <p style="font-size:1.05rem; font-weight:600; color:#64748b;">Belum ada tiket pengaduan yang masuk.</p>
+                    </div>
                 </div>
             <?php else: ?>
                 <?php foreach ($tickets as $t): ?>
                     <?php 
                         $isBullying = ($t['kategori'] === 'Bullying');
-                        $statusColor = '';
-                        if ($t['status'] === 'Pending') $statusColor = '#f59e0b';
+                        $statusColor = '#f59e0b';
                         if ($t['status'] === 'Diproses') $statusColor = '#3b82f6';
-                        if ($t['status'] === 'Selesai') $statusColor = '#10b981';
+                        if ($t['status'] === 'Selesai')  $statusColor = '#10b981';
                     ?>
-                    <div class="ticket-card <?php echo $isBullying ? 'urgent' : ''; ?>">
-                        <div class="ticket-header">
-                            <div>
-                                <div class="ticket-title">
-                                    <?php echo htmlspecialchars($t['nama_siswa']); ?> 
-                                    <span style="color: #cbd5e1;">(<?php echo htmlspecialchars($t['kelas']); ?>)</span>
+                    <div class="db-section <?php echo $isBullying ? 'urgent-border' : ''; ?>">
+                        <div class="ticket-row">
+                            <div class="ticket-top">
+                                <div>
+                                    <div class="ticket-name">
+                                        <?php echo htmlspecialchars($t['nama_siswa']); ?>
+                                        <span class="ticket-kelas">(<?php echo htmlspecialchars($t['kelas']); ?>)</span>
+                                    </div>
+                                    <div class="ticket-meta">
+                                        <span><?php echo date('d M Y, H:i', strtotime($t['created_at'])); ?></span>
+                                        <span class="badge-kategori <?php echo $isBullying ? 'badge-bullying' : ''; ?>"><?php echo htmlspecialchars($t['kategori']); ?></span>
+                                    </div>
                                 </div>
-                                <div class="ticket-meta">
-                                    <span><?php echo date('d M Y, H:i', strtotime($t['created_at'])); ?></span>
-                                    <span class="badge-kategori <?php echo $isBullying ? 'badge-bullying' : ''; ?>"><?php echo htmlspecialchars($t['kategori']); ?></span>
-                                </div>
-                            </div>
-                            <div>
-                                <span style="font-size: 0.85rem; font-weight: 700; color: <?php echo $statusColor; ?>; display: flex; align-items: center; gap: 5px;">
-                                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:<?php echo $statusColor; ?>;"></span>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: <?php echo $statusColor; ?>; display:flex; align-items:center;">
+                                    <span class="status-dot" style="background:<?php echo $statusColor; ?>;"></span>
                                     <?php echo htmlspecialchars($t['status']); ?>
                                 </span>
                             </div>
+                            
+                            <div class="ticket-body">
+                                <?php echo nl2br(htmlspecialchars($t['pesan'])); ?>
+                            </div>
+                            
+                            <form method="POST" action="" class="ticket-actions">
+                                <input type="hidden" name="id" value="<?php echo $t['id']; ?>">
+                                <input type="hidden" name="update_status" value="1">
+                                <select name="status">
+                                    <option value="Pending"  <?php echo $t['status'] === 'Pending'  ? 'selected' : ''; ?>>Pending</option>
+                                    <option value="Diproses" <?php echo $t['status'] === 'Diproses' ? 'selected' : ''; ?>>Diproses</option>
+                                    <option value="Selesai"  <?php echo $t['status'] === 'Selesai'  ? 'selected' : ''; ?>>Selesai</option>
+                                </select>
+                                <button type="submit" class="btn-save">Simpan Status</button>
+                                <a href="?delete=<?php echo $t['id']; ?>" class="btn-del" onclick="return confirm('Hapus tiket pengaduan ini secara permanen?');">Hapus Tiket</a>
+                            </form>
                         </div>
-                        
-                        <div class="ticket-body">
-                            <?php echo nl2br(htmlspecialchars($t['pesan'])); ?>
-                        </div>
-                        
-                        <form method="POST" action="" class="status-form" style="display:flex; flex-wrap:wrap;">
-                            <input type="hidden" name="id" value="<?php echo $t['id']; ?>">
-                            <input type="hidden" name="update_status" value="1">
-                            <select name="status">
-                                <option value="Pending" <?php echo $t['status'] === 'Pending' ? 'selected' : ''; ?>>Pending</option>
-                                <option value="Diproses" <?php echo $t['status'] === 'Diproses' ? 'selected' : ''; ?>>Diproses</option>
-                                <option value="Selesai" <?php echo $t['status'] === 'Selesai' ? 'selected' : ''; ?>>Selesai</option>
-                            </select>
-                            <button type="submit" class="btn btn-secondary">Simpan Status</button>
-                            <a href="?delete=<?php echo $t['id']; ?>" class="btn btn-danger" onclick="return confirm('Hapus tiket pengaduan ini secara permanen?');" style="margin-left:auto;">Hapus Tiket</a>
-                        </form>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -207,4 +297,3 @@ try {
 
 </body>
 </html>
-

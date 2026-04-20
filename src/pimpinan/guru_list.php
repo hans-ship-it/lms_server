@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // src/pimpinan/guru_list.php
 session_start();
 require_once '../../config/database.php';
@@ -8,163 +8,189 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['kepsek', 'wak
     exit;
 }
 
-$search_query = $_GET['search'] ?? '';
-
-$sql = "SELECT users.*, subjects.name as subject_name 
-        FROM users 
-        LEFT JOIN subjects ON users.subject_id = subjects.id 
-        WHERE users.role = 'guru' ";
-
+$search = $_GET['search'] ?? '';
 $params = [];
+$sql = "SELECT u.*, COUNT(DISTINCT tc.class_id) AS total_kelas,
+               GROUP_CONCAT(DISTINCT c.name ORDER BY c.name SEPARATOR ', ') AS nama_kelas
+        FROM users u
+        LEFT JOIN teacher_classes tc ON u.id = tc.teacher_id
+        LEFT JOIN classes c ON tc.class_id = c.id
+        WHERE u.role = 'guru'";
 
-if ($search_query) {
-    $sql .= " AND (users.full_name LIKE ? OR users.username LIKE ? OR users.nip LIKE ?) ";
-    $params[] = "%$search_query%";
-    $params[] = "%$search_query%";
-    $params[] = "%$search_query%";
+if ($search) {
+    $sql .= " AND (u.full_name LIKE ? OR u.username LIKE ? OR u.email LIKE ?)";
+    $params = array_fill(0, 3, "%$search%");
 }
+$sql .= " GROUP BY u.id ORDER BY u.full_name ASC";
 
-$sql .= " ORDER BY users.full_name ASC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-$guruList = $stmt->fetchAll();
+$guru_list = $stmt->fetchAll();
+
+$total_guru = count($guru_list);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Direktori Guru - Pimpinan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Guru - Pimpinan</title>
     <link rel="stylesheet" href="/public/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .role-badge { padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
-        .role-guru { background: #e0e7ff; color: #3730a3; }
-        .main-content > .dashboard-hero {
-            margin: -2rem -2rem 2rem -2rem !important;
-            width: calc(100% + 4rem) !important;
-            padding: 2.5rem 3rem !important;
-            border-radius: 0 0 40px 0 !important;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .main-content { background: #f5f7fb !important; padding: 0 !important; }
+        .page-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #1d4ed8 100%);
+            padding: 2.5rem 3rem 5rem;
+            position: relative; overflow: hidden;
         }
-        .main-content {
-            padding: 2rem;
+        .page-hero::before {
+            content: ''; position: absolute;
+            right: -60px; top: -60px;
+            width: 250px; height: 250px;
+            background: rgba(255,255,255,0.07); border-radius: 50%;
         }
-        .table-container { overflow-x: auto; background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 1rem; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
-        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .user-info { display: flex; align-items: center; gap: 1rem; }
-        .user-avatar-placeholder { width: 40px; height: 40px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .page-hero h1 { color: #fff; font-size: 1.6rem; font-weight: 700; margin: 0 0 0.4rem; }
+        .page-hero p  { color: rgba(255,255,255,0.8); margin: 0; font-size: 0.95rem; }
+        .page-content {
+            position: relative; margin-top: -2.5rem;
+            padding: 0 3rem 3rem; z-index: 10;
+        }
+        .stat-bar {
+            display: flex; gap: 1rem;
+            margin-bottom: 1.2rem; flex-wrap: wrap;
+        }
+        .stat-chip {
+            background: #fff; border: 1px solid #e8edf5;
+            border-radius: 12px; padding: 14px 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .stat-chip-val { font-size: 1.4rem; font-weight: 800; color: #1d4ed8; }
+        .stat-chip-lbl { font-size: 0.8rem; color: #94a3b8; font-weight: 500; }
+        .filter-bar {
+            background: #fff; border-radius: 12px;
+            border: 1px solid #e8edf5; padding: 14px 18px;
+            display: flex; gap: 10px; margin-bottom: 1.2rem;
+        }
+        .filter-bar input {
+            flex: 1; padding: 8px 12px;
+            border: 1px solid #e2e8f0; border-radius: 8px;
+            font-family: inherit; font-size: 0.88rem; background: #f8fafc;
+        }
+        .btn-filter {
+            padding: 8px 18px; background: #1d4ed8;
+            color: #fff; border: none; border-radius: 8px;
+            font-weight: 600; font-size: 0.88rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .db-section {
+            background: #fff; border-radius: 14px;
+            border: 1px solid #e8edf5; overflow: hidden;
+        }
+        .section-head {
+            padding: 14px 20px; border-bottom: 1px solid #f1f5f9;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-head h3 { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .guru-row {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 20px; border-bottom: 1px solid #f8fafc;
+        }
+        .guru-row:last-child { border-bottom: none; }
+        .guru-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+        .guru-name { font-weight: 700; color: #0f172a; font-size: 0.95rem; }
+        .guru-meta { font-size: 0.8rem; color: #94a3b8; margin-top: 2px; }
+        .guru-classes {
+            margin-left: auto; text-align: right;
+            font-size: 0.8rem; color: #64748b;
+        }
+        .badge-kelas {
+            display: inline-block; background: #eff6ff; color: #1d4ed8;
+            padding: 3px 9px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; margin-right: 3px;
+        }
+        .empty-state { text-align: center; padding: 4rem 2rem; color: #94a3b8; }
+        @media (max-width: 768px) {
+            .page-content { padding: 0 1rem 2rem; }
+            .page-hero { padding: 2rem 1.5rem 4.5rem; }
+            .guru-classes { display: none; }
+        }
     </style>
 </head>
-<body style="background-color: #f8fafc;">
+<body>
 
 <div class="app-container">
     <?php include '../templates/sidebar.php'; ?>
     
     <main class="main-content">
-        <!-- Unified Hero Header -->
-        <div class="dashboard-hero">
-            <div style="position: relative; z-index: 2;">
-                <h1 style="color: white; margin-bottom: 0.5rem;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 14h.01"/></svg> Direktori Guru</h1>
-                <p style="color: rgba(255,255,255,0.8);">Pantau data seluruh guru pengajar di sekolah.</p>
-            </div>
-            <!-- Decorative circle -->
-            <div style="position: absolute; right: -50px; top: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div class="page-hero">
+            <h1>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:8px;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Direktori Guru
+            </h1>
+            <p>Pantau daftar dan penugasan seluruh guru di sekolah.</p>
         </div>
-        
-        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
-            <div style="margin-bottom: 1.5rem;">
-                <form method="GET" style="display: flex; gap: 10px;">
-                    <input type="text" name="search" placeholder="Cari nama, NIP, username..." value="<?php echo htmlspecialchars($search_query); ?>" style="flex: 1; padding: 0.75rem 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit;">
-                    
-                    <button type="submit" style="background: #0ea5e9; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Cari</button>
-                    <!-- Reset Button -->
-                    <?php if ($search_query): ?>
-                        <a href="guru_list.php" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; display: inline-block;">Reset</a>
-                    <?php
-endif; ?>
-                </form>
+
+        <div class="page-content">
+            <div class="stat-bar">
+                <div class="stat-chip">
+                    <div>
+                        <div class="stat-chip-val"><?php echo $total_guru; ?></div>
+                        <div class="stat-chip-lbl">Total Guru</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Guru</th>
-                            <th>Mata Pelajaran</th>
-                            <th>Gender & Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($guruList)): ?>
-                            <tr>
-                                <td colspan="3" style="text-align: center; color: #64748b; padding: 2rem;">Tidak ada data guru ditemukan.</td>
-                            </tr>
-                        <?php
-else: ?>
-                            <?php foreach ($guruList as $u): ?>
-                            <tr>
-                                <td>
-                                    <div class="user-info">
-                                        <?php if ($u['photo_path']): ?>
-                                            <img src="/<?php echo htmlspecialchars($u['photo_path']); ?>" class="user-avatar">
-                                        <?php
-        else: ?>
-                                            <div class="user-avatar-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-                                        <?php
-        endif; ?>
-                                        <div>
-                                            <strong style="color: #0f172a; font-size: 0.95rem;"><?php echo htmlspecialchars($u['full_name']); ?></strong><br>
-                                            <span style="color: #64748b; font-size: 0.8rem;">@<?php echo htmlspecialchars($u['username']); ?></span>
-                                            <?php if ($u['nip']): ?>
-                                                <div style="font-size: 0.75rem; color: #475569;">NIP: <?php echo htmlspecialchars($u['nip']); ?></div>
-                                            <?php
-        endif; ?>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <?php if ($u['subject_name']): ?>
-                                        <span style="background: #f1f5f9; color: #334155; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; display: inline-block;">
-                                            <?php echo htmlspecialchars($u['subject_name']); ?>
-                                        </span>
+            <form method="GET" class="filter-bar">
+                <input type="text" name="search" placeholder="Cari nama, username, atau email guru..." value="<?php echo htmlspecialchars($search); ?>">
+                <button type="submit" class="btn-filter">Cari</button>
+                <?php if ($search): ?>
+                    <a href="guru_list.php" style="padding:8px 14px; background:#f1f5f9; color:#475569; border-radius:8px; font-weight:600; font-size:0.88rem; text-decoration:none; display:flex; align-items:center;">Reset</a>
+                <?php endif; ?>
+            </form>
+
+            <div class="db-section">
+                <div class="section-head">
+                    <h3>Daftar Guru <?php if ($search) echo '(Hasil pencarian "'.htmlspecialchars($search).'")'; ?></h3>
+                    <span style="font-size:0.82rem; color:#94a3b8;"><?php echo count($guru_list); ?> guru</span>
+                </div>
+                <?php if (empty($guru_list)): ?>
+                    <div class="empty-state">
+                        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:1rem;opacity:0.4;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <p style="font-weight:600; color:#64748b;">Tidak ada guru yang ditemukan.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($guru_list as $g): ?>
+                        <div class="guru-row">
+                            <div class="guru-avatar"><?php echo strtoupper(substr($g['full_name'], 0, 1)); ?></div>
+                            <div>
+                                <div class="guru-name"><?php echo htmlspecialchars($g['full_name']); ?></div>
+                                <div class="guru-meta">@<?php echo htmlspecialchars($g['username']); ?> &bull; <?php echo htmlspecialchars($g['email'] ?? '-'); ?></div>
+                            </div>
+                            <div class="guru-classes">
+                                <?php if ($g['total_kelas'] > 0): ?>
+                                    <span style="font-size:0.78rem; color:#64748b; display:block; margin-bottom:4px;"><?php echo $g['total_kelas']; ?> kelas diampu</span>
                                     <?php
-        else: ?>
-                                        <span style="color: #94a3b8; font-style: italic; font-size: 0.85rem;">Belum diatur</span>
-                                    <?php
-        endif; ?>
-                                </td>
-                                <td>
-                                    <?php if ($u['gender'])
-            echo($u['gender'] == 'L' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Laki-laki' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Perempuan') . '<br>'; ?>
-                                    <div style="margin-top: 6px;">
-                                        <?php if ($u['status'] == 'active'): ?>
-                                            <span style="color: #10b981; font-size: 0.8rem; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><polyline points="20 6 9 17 4 12"/></svg> AKTIF</span>
-                                        <?php
-        elseif ($u['status'] == 'suspended'): ?>
-                                            <span style="color: #ef4444; font-size: 0.8rem; font-weight: 600;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; line-height:1;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> SUSPEND</span>
-                                        <?php
-        else: ?>
-                                            <span style="color: #64748b; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;"><?php echo htmlspecialchars($u['status']); ?></span>
-                                        <?php
-        endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php
-    endforeach; ?>
-                        <?php
-endif; ?>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style="margin-top: 1rem; font-size: 0.85rem; color: #64748b; text-align: right;">
-                Total Guru: <?php echo count($guruList); ?>
+                                    $kelas_arr = $g['nama_kelas'] ? explode(', ', $g['nama_kelas']) : [];
+                                    foreach (array_slice($kelas_arr, 0, 4) as $k):
+                                    ?>
+                                        <span class="badge-kelas"><?php echo htmlspecialchars($k); ?></span>
+                                    <?php endforeach; ?>
+                                    <?php if (count($kelas_arr) > 4): ?>
+                                        <span class="badge-kelas">+<?php echo count($kelas_arr) - 4; ?></span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span style="font-size:0.78rem; color:#94a3b8;">Belum ada kelas</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </main>
@@ -172,4 +198,3 @@ endif; ?>
 
 </body>
 </html>
-
